@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     CODEBUDDY — HOMEPAGE HERO REDESIGN
+     Concept: “THE WALL BECOMES THE CANVAS”
+     ──────────────────────────────────────────────────────────────────────────
+     One continuous cinematic sequence. The barriers to software development
+     stand as a literal wall of monospace brick-words. A green laser level
+     draws across it, the wall shatters — and the very fragments of the old
+     barriers reassemble into the endless things a business could build:
+     bookings.app → invoices.app → fleet.app → crm.app … looping forever.
+     The 40 fragments that survive the shatter ARE the UI blocks of every
+     mini-app (true shared-element continuity — nothing is swapped).
+
+     ACT STRUCTURE / TIMING MAP  (master GSAP timeline labels, seconds)
+       0.00  boot      nav + eyebrow fade in, brick-words rise into the wall
+       1.20  hum       low-frequency jitter, glitch ticks, red-orange breathing
+       2.25  laser     the green level-line draws itself L→R (0.65s)
+       2.95  shatter   wall breaks on impact · headline word “Breaking” lands
+                       on the exact shatter frame · “Barriers” gets struck
+                       through by a green line at +0.55
+       3.10  debris    ~120 shards fall with eased gravity and fade;
+                       40 survivor blocks regroup into a neat resting grid
+       4.60  canvas    the blank canvas beat — a quiet grid of raw blocks
+       5.00  apps      blocks morph into bookings → invoices → fleet → crm
+                       (~3.5s per app, FLIP-style transform morphs, fresh
+                       timelines each cycle). Intro plays once per page load;
+                       only this app cycle loops (Act 4).
+
+     TWEAKING: all key timings live in the `T` object at the top of the main
+     script. Scene geometry lives in the four scene functions (sceneBookings…).
+
+     STORYBOARD STILLS: open index.html?shot=<seconds> to freeze the whole
+     sequence at any moment (e.g. ?shot=2.95 = the shatter frame) — handy
+     for exporting keyframes / presenting the concept as static boards.
+
+     LOGO: the nav mark and favicon embed the official CodeBuddy lockup
+     (vector paths extracted from the client brand kit SVG), styled in the
+     dark-mode treatment — white wordmark, brand-green link icon.
+
+     RESPONSIVE INTENT (designed at 1440×800 — see @media notes in CSS):
+       1920+  hero centers, stage scales up to 1.12, type maxes at clamp cap
+       1280   stage auto-scales down (single transform scale — no reflow)
+       ≤991   stage drops below the text stack at ~60% height, copy centers
+       ≤479   wall reduces to 6 brick-words, only 2 mini-apps cycle
+              (bookings, invoices), headline clamps down, CTA goes full-width
+
+     ACCESSIBILITY: real h1/copy, AA contrast, focus-visible rings, the whole
+     animated stage is aria-hidden with a text alternative for screen readers.
+     prefers-reduced-motion: no shatter — the wall renders already broken,
+     the four mini-apps gently crossfade, nothing jitters or flies.
+
+     PERFORMANCE: GSAP core only (CDN), zero images, zero other libraries.
+     Shatter animates transform+opacity on ≤160 pre-built quads; app morphs
+     tween 40 absolutely-positioned blocks. Ambient dot-grid is a single
+     pre-rendered canvas moved by transform. Replay button simply reloads.
+     ══════════════════════════════════════════════════════════════════════ -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>CodeBuddy — Breaking Down Barriers to Software Development</title>
+<meta name="description" content="You bring the ideas and the business expertise. Build the software your business actually needs — easier, faster, less expensive, and more reliable.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 119 119'%3E%3Cpath d='M83.36,28.89h-19.11l-8.88-11.2h-19.96C15.91,17.69,0,33.61,0,53.19s15.91,35.5,35.47,35.5h19.06l8.88,11.2h20.01c19.56,0,35.47-15.92,35.47-35.5s-15.91-35.5-35.47-35.5h-.06ZM35.47,35.41h18.61l8.88,11.2h20.46c9.78,0,17.76,7.99,17.76,17.78s-7.98,17.78-17.76,17.78h-18.66l-8.88-11.2h-20.4c-9.78,0-17.76-7.99-17.76-17.78s7.98-17.78,17.76-17.78Z' fill='%2300C386'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────  TOKENS  ───────────────────────────── */
+:root{
+  --green:#00C386; --green-ink:#06231A;
+  --bg:#0A0F0D; --bg2:#0D1512;
+  --paper:#F7FAF9; --slate:#8BA69C; --red:#FF5C47;
+  --ink:#101816;
+  --f-disp:'Space Grotesk',ui-sans-serif,system-ui,sans-serif;
+  --f-sans:'Inter',ui-sans-serif,system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,'Cascadia Code',Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--paper);
+  font-family:var(--f-sans); -webkit-font-smoothing:antialiased;
+  overflow:hidden; /* deliverable is the above-the-fold hero only */
+}
+::selection{background:rgba(0,195,134,.35);color:#fff}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ─────────────────────────────  HERO SHELL  ───────────────────────── */
+.hero{
+  position:relative; min-height:100svh; overflow:hidden;
+  display:grid; grid-template-rows:auto 1fr;
+  background:
+    radial-gradient(1100px 700px at 70% 34%, rgba(0,195,134,.055), transparent 62%),
+    radial-gradient(900px 600px at 12% 90%, rgba(0,195,134,.03), transparent 60%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg2) 120%);
+}
+#dots{position:absolute; left:-12px; top:-12px; width:calc(100% + 24px); height:calc(100% + 24px); opacity:.9}
+.streak{position:absolute; width:110px; height:1px; opacity:0; pointer-events:none;
+  background:linear-gradient(90deg, transparent, rgba(0,195,134,.55), transparent)}
+.streak.v{width:1px;height:110px;background:linear-gradient(180deg, transparent, rgba(0,195,134,.55), transparent)}
+
+/* ─────────────────────────────  NAV  ──────────────────────────────── */
+.nav{
+  position:relative; z-index:6;
+  display:flex; align-items:center; justify-content:space-between;
+  max-width:1400px; width:100%; margin:0 auto; padding:22px 48px 0;
+}
+.logo{display:flex; align-items:center; gap:10px; text-decoration:none}
+.nav-links{display:flex; align-items:center; gap:28px; font-size:13.5px; font-weight:500; color:var(--slate)}
+.nav-links a{text-decoration:none; transition:color .2s}
+.nav-links a:hover{color:var(--paper)}
+.nav-links .signin{
+  color:var(--paper); border:1px solid rgba(247,250,249,.16); border-radius:999px;
+  padding:7px 16px; transition:border-color .2s, background .2s;
+}
+.nav-links .signin:hover{border-color:rgba(0,195,134,.6); background:rgba(0,195,134,.08)}
+
+/* ─────────────────────────────  BODY GRID  ────────────────────────── */
+.hero-body{
+  position:relative; z-index:2;
+  display:grid; grid-template-columns:44% 56%; align-items:center;
+  max-width:1400px; width:100%; margin:0 auto; padding:8px 48px 34px; gap:16px;
+}
+
+/* ── left: copy ── */
+.copy{position:relative; z-index:5; container-type:inline-size}
+.eyebrow{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--f-mono); font-size:12.5px; font-weight:500;
+  letter-spacing:.22em; color:var(--green); margin-bottom:22px;
+}
+.eyebrow::before{content:""; width:26px; height:1px; background:var(--green); opacity:.7}
+h1{
+  font-family:var(--f-disp); font-weight:700;
+  font-size:clamp(2.6rem, 6.5vw, 5.5rem); /* client-mandated scale */
+  line-height:1.03; letter-spacing:-.03em; margin-bottom:26px;
+}
+@supports (width:1cqw){ h1{font-size:min(clamp(2.6rem, 6.5vw, 5.5rem), 14.4cqw)} }
+h1 .ln{display:block}
+h1 .w{display:inline-block; overflow:hidden; vertical-align:top}
+h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-change:transform}
+.w-barriers .wi{position:relative}
+.strike{
+  position:absolute; left:-2%; right:-2%; top:55%; height:.055em;
+  background:var(--green); border-radius:99px;
+  box-shadow:0 0 18px rgba(0,195,134,.55);
+  transform:scaleX(0); transform-origin:0 50%;
+}
+.sub{
+  font-size:18.5px; line-height:1.6; color:var(--slate);
+  max-width:46ch; margin-bottom:34px; font-weight:400;
+}
+.cta-row{display:flex; align-items:center; gap:26px; margin-bottom:30px; flex-wrap:wrap}
+.btn{
+  display:inline-flex; align-items:center; gap:10px;
+  background:var(--green); color:var(--green-ink); text-decoration:none;
+  font-weight:600; font-size:15.5px; padding:16px 28px; border-radius:999px;
+  transition:transform .22s cubic-bezier(.2,.9,.3,1.4), box-shadow .25s;
+  box-shadow:0 4px 18px -6px rgba(0,195,134,.35);
+}
+.btn svg{transition:transform .22s}
+.btn:hover{transform:translateY(-2px); box-shadow:0 10px 34px -6px rgba(0,195,134,.5)}
+.btn:hover svg{transform:translateX(3px)}
+.ghost{
+  font-size:14.5px; font-weight:500; color:var(--slate); text-decoration:none;
+  border-bottom:1px solid transparent; padding-bottom:2px; transition:color .2s, border-color .2s;
+}
+.ghost:hover{color:var(--paper); border-color:rgba(0,195,134,.7)}
+.trust{display:flex; align-items:center; gap:9px; font-size:12.5px; color:#7C948B; letter-spacing:.02em}
+.trust .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:beat 2.6s ease-in-out infinite}
+@keyframes beat{0%,100%{box-shadow:0 0 0 0 rgba(0,195,134,.5)}50%{box-shadow:0 0 0 5px rgba(0,195,134,0)}}
+
+/* ── right: stage ── */
+.stage-col{position:relative; height:100%; min-height:600px; display:flex; align-items:center; justify-content:center}
+.scaler{width:720px; height:560px; position:relative; flex:none}
+.stage{position:absolute; inset:0}
+.stage, .scaler{pointer-events:none}
+
+/* the wall */
+#wallGlow{position:absolute; inset:-40px; z-index:1;
+  background:radial-gradient(60% 55% at 50% 44%, rgba(255,92,71,.085), transparent 70%); opacity:0}
+#wall{position:absolute; inset:0; z-index:4}
+.brick{
+  position:absolute; display:flex; align-items:center; justify-content:center;
+  font-family:var(--f-mono); font-weight:700; letter-spacing:.03em; white-space:nowrap;
+  color:rgba(255,92,71,.42); text-shadow:0 0 26px rgba(255,92,71,.28);
+  border:1px solid rgba(255,92,71,.17); border-radius:3px;
+  background:linear-gradient(180deg, rgba(255,92,71,.055), rgba(255,92,71,.015));
+  will-change:transform;
+}
+.brick.zap{color:rgba(0,195,134,.95); border-color:rgba(0,195,134,.8);
+  text-shadow:0 0 30px rgba(0,195,134,.6); background:rgba(0,195,134,.07)}
+
+/* laser level */
+#laser{position:absolute; left:0; top:248px; width:720px; height:2px; z-index:6; opacity:0;
+  background:linear-gradient(90deg, rgba(0,195,134,.1), var(--green));
+  box-shadow:0 0 14px rgba(0,195,134,.8), 0 0 44px rgba(0,195,134,.35);
+  transform:scaleX(0); transform-origin:0 50%}
+#laserHead{position:absolute; left:-6px; top:243px; width:12px; height:12px; border-radius:50%; z-index:6; opacity:0;
+  background:radial-gradient(circle, #CFFFEE 0%, var(--green) 45%, transparent 72%);
+  box-shadow:0 0 22px 6px rgba(0,195,134,.55)}
+
+/* shards + blocks */
+#frags{position:absolute; inset:0; z-index:5; visibility:hidden}
+.frag{position:absolute; left:0; top:0; border-radius:3px; will-change:transform,opacity}
+/* NOTE: #blocks has no z-index on purpose — it must not create a stacking
+   context, so each block's own z-index interleaves with the chrome layer:
+   app card (z1) < chrome microtype/grids (z2) < content blocks (z3+).     */
+#blocks{position:absolute; inset:0}
+.blk{
+  position:absolute; left:0; top:0; width:14px; height:14px;
+  border:1px solid transparent; border-radius:4px;
+  display:flex; align-items:center; justify-content:space-between; gap:6px;
+  padding:0 9px; overflow:hidden; will-change:transform;
+}
+.blk .bl{font-family:var(--f-sans); white-space:nowrap; min-width:0; overflow:hidden}
+.blk .br{font-family:var(--f-mono); white-space:nowrap; flex:none; font-variant-numeric:tabular-nums}
+
+/* per-app chrome (real HTML microtype, fades per scene) */
+.chrome{position:absolute; inset:0; z-index:2; opacity:0}
+.chrome *{position:absolute}
+.dots span{position:absolute; width:8px; height:8px; border-radius:50%; top:0}
+.dots span:nth-child(1){left:0;  background:rgba(16,24,22,.14)}
+.dots span:nth-child(2){left:14px; background:rgba(16,24,22,.14)}
+.dots span:nth-child(3){left:28px; background:rgba(0,195,134,.55)}
+.chip{
+  font-family:var(--f-mono); font-size:9.5px; font-weight:600; letter-spacing:.02em;
+  color:#0A7B5C; background:rgba(0,195,134,.13); border-radius:6px; padding:3px 8px; line-height:1.4;
+}
+.hline{height:1px; background:rgba(16,24,22,.07)}
+.microtag{font-family:var(--f-mono); font-size:9px; font-weight:500; letter-spacing:.1em; color:rgba(16,24,22,.45)}
+
+/* PAID stamp (stage-level so it sits above blocks) */
+#stamp{
+  position:absolute; left:446px; top:86px; width:130px; height:48px; z-index:9; opacity:0;
+  display:flex; align-items:center; justify-content:center;
+  border:2.5px solid var(--green); border-radius:9px; color:#00B37D;
+  font-family:var(--f-mono); font-weight:700; font-size:17px; letter-spacing:.32em; text-indent:.32em;
+  background:rgba(247,250,249,.6); backdrop-filter:blur(1px);
+  box-shadow:0 0 0 1px rgba(0,195,134,.12), 0 6px 22px -8px rgba(0,150,100,.4);
+}
+
+/* ring pulse + multiplayer cursor */
+#ring{position:absolute; left:0; top:0; z-index:11; opacity:0; border:2px solid var(--green); border-radius:12px}
+#you{position:absolute; left:0; top:0; z-index:30; opacity:0; filter:drop-shadow(0 3px 8px rgba(3,8,6,.4))}
+#you .tag{
+  position:absolute; left:15px; top:17px;
+  font-family:var(--f-mono); font-size:9px; font-weight:700; color:var(--green-ink);
+  background:var(--green); border-radius:999px; padding:2.5px 7px; line-height:1.3;
+}
+
+/* stage caption + flash */
+#caption{position:absolute; left:2px; top:536px; z-index:7; opacity:0;
+  font-family:var(--f-mono); font-size:11px; letter-spacing:.06em; color:rgba(255,92,71,.55)}
+#flash{position:absolute; inset:-30px; z-index:8; opacity:0; background:radial-gradient(50% 45% at 50% 44%, rgba(220,255,242,.5), transparent 70%)}
+
+/* replay (outside the aria-hidden stage) */
+#replay{
+  position:absolute; right:6px; bottom:2px; z-index:12; opacity:0;
+  font-family:var(--f-mono); font-size:10.5px; letter-spacing:.04em;
+  color:var(--slate); background:none; border:none; cursor:pointer; padding:6px 8px;
+  transition:color .2s; pointer-events:auto;
+}
+#replay:hover{color:var(--green)}
+
+/* ────────────────  NO-JS / NO-GSAP STATIC POSTER  ─────────────────
+   With scripting unavailable, the page shows the composed poster:
+   full copy + the standing wall. Everything else stays hidden.      */
+.no-anim #laser,.no-anim #laserHead,.no-anim #frags,.no-anim #you,.no-anim #stamp,.no-anim #replay{display:none}
+.no-anim .strike{transform:scaleX(1)}
+
+/* ─────────────────────────  RESPONSIVE INTENT  ─────────────────────
+   Designed at 1440×800. The stage is a fixed 720×560 coordinate space
+   scaled by a single transform, so breakpoints only reflow the shell.
+   1920+ : max-width caps the grid; stage scales to ≤1.12; air grows.
+   1280  : stage auto-scales ~0.9; type tracks clamp()/cqw.           */
+@media (max-width:991px){
+  /* stage drops below the text stack at ~60% viewport height */
+  body{overflow:auto}
+  .hero-body{grid-template-columns:1fr; padding-top:24px; gap:0}
+  .stage-col{min-height:60svh; order:2}
+  .copy{order:1}
+  .nav{padding:18px 24px 0}
+  .hero-body{padding-left:24px; padding-right:24px}
+}
+@media (max-width:479px){
+  /* 6 brick-words (JS hides two), 2 mini-apps cycle, full-width CTA */
+  .brick.m-hide{display:none}
+  .btn{width:100%; justify-content:center}
+  .cta-row{gap:16px}
+  .nav-links a:not(.signin){display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .trust .pulse-dot{animation:none}
+  .btn{transition:none}
+}
+</style>
+</head>
+<body>
+
+<section class="hero" id="hero">
+  <canvas id="dots" aria-hidden="true"></canvas>
+
+  <!-- ══ NAV (placeholder — see LOGO note in the README comment) ══ -->
+  <nav class="nav" id="nav" aria-label="Main">
+    <a class="logo" href="#" aria-label="CodeBuddy home">
+      <!-- Official CodeBuddy lockup (vector paths from the client brand kit).
+           Dark-mode treatment per brief: white wordmark + brand-green icon.
+           For the all-green on-black variant, set both fills to #00C386. -->
+      <svg height="23" viewBox="0 0 634 119" aria-hidden="true">
+        <path fill="#00C386" d="M83.36,28.89h-19.11l-8.88-11.2h-19.96C15.91,17.69,0,33.61,0,53.19s15.91,35.5,35.47,35.5h19.06l8.88,11.2h20.01c19.56,0,35.47-15.92,35.47-35.5s-15.91-35.5-35.47-35.5h-.06ZM35.47,35.41h18.61l8.88,11.2h20.46c9.78,0,17.76,7.99,17.76,17.78s-7.98,17.78-17.76,17.78h-18.66l-8.88-11.2h-20.4c-9.78,0-17.76-7.99-17.76-17.78s7.98-17.78,17.76-17.78Z"/>
+        <path fill="#F7FAF9" d="M167.08,85.31c-14.04,0-24.21-10.53-24.09-25.04,0-14.52,10.05-24.93,24.09-24.93,11.38,0,20.8,7.17,22.53,17.06l-7.4.98c-1.68-6.71-7.97-11.16-15.02-11.16-9.42,0-16.7,7.4-16.58,18.04,0,10.76,7.05,18.16,16.47,18.16,7.22,0,13.4-4.51,15.2-10.99l7.51.98c-2.08,9.83-11.61,16.89-22.71,16.89ZM219.25,85.31c-14.56,0-24.84-10.35-24.84-25.04s10.28-24.93,24.84-24.93,24.84,10.35,24.84,24.93-10.34,25.04-24.84,25.04ZM219.25,78.42c10,0,17.22-7.63,17.22-18.16s-7.22-18.04-17.22-18.04-17.22,7.63-17.22,18.04,7.16,18.16,17.22,18.16ZM272.7,85.31c-13.58,0-23.98-10.53-23.98-25.04s10.34-24.93,23.92-24.93c7.4,0,13.58,3.12,16.93,8.73h.92v-27.99h7.63v67.37h-7.63v-7.17h-.92c-3.41,5.67-9.36,8.96-16.87,8.96v.06ZM273.51,78.42c9.88,0,17.16-7.98,17.16-18.16s-7.22-18.04-17.16-18.04-17.22,7.87-17.22,18.04,7.34,18.16,17.22,18.16ZM330.07,85.31c-14.5,0-24.9-10.76-24.9-25.56s10.28-24.4,24.55-24.4,24.27,10.29,24.27,24.46c0,.93,0,2.02-.12,3.01h-40.96c1.1,9.37,7.86,15.61,17.33,15.61,6.88,0,12.94-3.47,15.83-8.96l6.3,3.18c-3.76,7.87-12.08,12.67-22.36,12.67h.06ZM313.03,56.16h32.99c-1.39-8.33-7.86-13.94-16.7-13.94s-15.02,5.61-16.29,13.94ZM386.46,85.31c-7.63,0-13.58-3.3-16.93-8.96h-.81v7.17h-7.63V16.08h7.63v27.99h.81c3.41-5.61,9.59-8.73,17.04-8.73,13.46,0,23.8,10.47,23.8,24.93s-10.46,25.04-23.92,25.04ZM385.65,78.42c9.88,0,17.16-7.81,17.16-18.16s-7.22-18.04-17.16-18.04-17.22,7.87-17.22,18.04,7.22,18.16,17.22,18.16ZM451.23,37.13h7.63v46.32h-7.63v-6.3h-.93c-3.18,5.03-8.43,7.98-14.5,7.98-11.84,0-19.24-8.5-19.24-20.36v-27.59h7.63v27.59c0,7.86,4.56,13.47,12.54,13.47s14.5-5.96,14.5-14.11v-27.01ZM490.06,85.31c-13.58,0-23.98-10.53-23.98-25.04s10.34-24.93,23.92-24.93c7.4,0,13.58,3.12,16.93,8.73h.92v-27.99h7.63v67.37h-7.63v-7.17h-.92c-3.41,5.67-9.36,8.96-16.87,8.96v.06ZM490.86,78.42c9.88,0,17.16-7.98,17.16-18.16s-7.22-18.04-17.16-18.04-17.22,7.87-17.22,18.04,7.34,18.16,17.22,18.16ZM546.5,85.31c-13.58,0-23.98-10.53-23.98-25.04s10.34-24.93,23.92-24.93c7.39,0,13.58,3.12,16.93,8.73h.92v-27.99h7.63v67.37h-7.63v-7.17h-.92c-3.41,5.67-9.36,8.96-16.87,8.96v.06ZM547.31,78.42c9.88,0,17.16-7.98,17.16-18.16s-7.22-18.04-17.16-18.04-17.22,7.87-17.22,18.04,7.34,18.16,17.22,18.16ZM585.79,103.99c-2.31,0-5.2-.58-7.34-1.45v-6.71c2.08.81,4.39,1.39,6.12,1.39,6.88,0,8.73-7.34,11.44-13.82l-20.63-46.21h7.97l15.83,36.2h.92l13.58-36.2h8.15l-18.32,47.02c-4.1,10.29-7.8,19.84-17.8,19.84l.06-.06Z"/>
+        <path fill="#F7FAF9" opacity=".55" d="M626.04,83.79c-2.86,0-4.89-2-4.89-4.84s2.03-4.81,4.89-4.81,4.91,1.99,4.91,4.81-2.03,4.84-4.91,4.84ZM626.05,83.12c2.44,0,4.17-1.73,4.17-4.17s-1.73-4.13-4.17-4.13-4.16,1.75-4.16,4.13,1.72,4.17,4.16,4.17ZM624.82,81.86h-.76v-5.91h2.58c1.1,0,1.92.76,1.92,1.81s-.82,1.72-1.92,1.72h-.04l1.91,2.38h-.98l-1.8-2.36h-.92v2.36ZM624.82,76.62v2.24h1.71c.73,0,1.26-.43,1.26-1.11s-.56-1.13-1.26-1.13h-1.71Z"/>
+      </svg>
+    </a>
+    <div class="nav-links">
+      <a href="#">Product</a>
+      <a href="#">Solutions</a>
+      <a href="#">Pricing</a>
+      <a class="signin" href="#">Sign in</a>
+    </div>
+  </nav>
+
+  <div class="hero-body">
+    <!-- ══ LEFT: COPY ══ -->
+    <div class="copy">
+      <p class="eyebrow" id="eyebrow">FOR BUSINESSES WITH BIG IDEAS</p>
+
+      <h1 id="h1">
+        <span class="ln"><span class="w"><span class="wi">Breaking</span></span> <span class="w"><span class="wi">Down</span></span></span>
+        <span class="ln"><span class="w w-barriers"><span class="wi">Barriers<i class="strike" aria-hidden="true"></i></span></span> <span class="w"><span class="wi">to</span></span></span>
+        <span class="ln"><span class="w"><span class="wi">Software</span></span></span>
+        <span class="ln"><span class="w"><span class="wi">Development</span></span></span>
+      </h1>
+
+      <p class="sub" id="sub">You’ve got the ideas and the business expertise. We provide the blank canvas, the tools, and professional engineers — so you can build software that’s easier, faster, less expensive, and more reliable.</p>
+
+      <div class="cta-row" id="ctaRow">
+        <a class="btn" href="#schedule">Schedule a Meeting
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="#06231A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a class="ghost" href="#gallery">See what others built →</a>
+      </div>
+
+      <p class="trust" id="trust"><span class="pulse-dot" aria-hidden="true"></span>10,000+ builders · shipping since 2019</p>
+    </div>
+
+    <!-- ══ RIGHT: THE STAGE ══ -->
+    <div class="stage-col" id="stageCol">
+      <p class="sr-only">Animation: a wall built from the barriers to software development — cost, time, code, complexity — shatters along a green laser line, and its fragments reassemble into the apps a business could build: a booking calendar, an invoice, a fleet dispatch board, and a sales pipeline.</p>
+
+      <div class="scaler" id="scaler">
+        <div class="stage" id="stage" aria-hidden="true">
+          <div id="wallGlow"></div>
+
+          <!-- per-app chrome: real HTML microtype, positioned in stage space -->
+          <div class="chrome" id="chrome-bookings">
+            <span class="dots" style="left:68px;top:52px;width:36px;height:8px"><span></span><span></span><span></span></span>
+            <span class="chip" style="left:112px;top:45px">bookings.app</span>
+            <span class="hline" style="left:51px;top:80px;width:618px"></span>
+            <span class="microtag" style="left:70px;top:87px;width:83px;text-align:center">MON</span>
+            <span class="microtag" style="left:153px;top:87px;width:83px;text-align:center">TUE</span>
+            <span class="microtag" style="left:236px;top:87px;width:83px;text-align:center">WED</span>
+            <span class="microtag" style="left:319px;top:87px;width:83px;text-align:center">THU</span>
+            <span class="microtag" style="left:402px;top:87px;width:83px;text-align:center">FRI</span>
+            <span class="microtag" style="left:485px;top:87px;width:83px;text-align:center">SAT</span>
+            <span class="microtag" style="left:568px;top:87px;width:83px;text-align:center">SUN</span>
+            <span style="left:70px;top:104px;width:581px;height:392px;
+              background-image:repeating-linear-gradient(to bottom, rgba(16,24,22,.05) 0 1px, transparent 1px 56px),
+                               repeating-linear-gradient(to right, rgba(16,24,22,.035) 0 1px, transparent 1px 83px);"></span>
+          </div>
+
+          <div class="chrome" id="chrome-invoices">
+            <span class="dots" style="left:128px;top:56px;width:36px;height:8px"><span></span><span></span><span></span></span>
+            <span class="chip" style="left:172px;top:49px">invoices.app</span>
+            <span class="hline" style="left:111px;top:84px;width:498px"></span>
+            <span style="left:180px;top:93px;font-family:var(--f-sans);font-size:14.5px;font-weight:700;color:#101816">Invoice #2041</span>
+            <span style="left:180px;top:115px;font-family:var(--f-sans);font-size:11px;font-weight:500;color:#5C6E67">Meridian Builders · Net 30</span>
+            <span class="microtag" style="left:446px;top:99px;width:140px;text-align:right;letter-spacing:.08em">DUE JUL 25</span>
+            <span class="hline" style="left:134px;top:402px;width:452px"></span>
+          </div>
+
+          <div class="chrome" id="chrome-fleet">
+            <span class="dots" style="left:58px;top:72px;width:36px;height:8px"><span></span><span></span><span></span></span>
+            <span class="chip" style="left:102px;top:65px">fleet.app</span>
+            <span class="hline" style="left:41px;top:100px;width:638px"></span>
+            <span style="left:200px;top:106px;width:456px;height:12px;display:flex;justify-content:space-between;position:absolute">
+              <span class="microtag" style="position:static">6A</span><span class="microtag" style="position:static">8A</span><span class="microtag" style="position:static">10A</span><span class="microtag" style="position:static">12P</span><span class="microtag" style="position:static">2P</span><span class="microtag" style="position:static">4P</span>
+            </span>
+            <span style="left:200px;top:122px;width:457px;height:292px;
+              background-image:repeating-linear-gradient(to right, rgba(16,24,22,.045) 0 1px, transparent 1px 76px);"></span>
+            <span class="microtag" style="left:58px;top:442px;letter-spacing:.14em">UNASSIGNED</span>
+            <span id="ghostSlot" style="left:356px;top:370px;width:148px;height:36px;border:1.5px dashed rgba(0,195,134,.55);border-radius:9px;opacity:0"></span>
+          </div>
+
+          <div class="chrome" id="chrome-crm">
+            <span class="dots" style="left:68px;top:60px;width:36px;height:8px"><span></span><span></span><span></span></span>
+            <span class="chip" style="left:112px;top:53px">crm.app</span>
+            <span class="hline" style="left:51px;top:88px;width:618px"></span>
+            <span class="microtag" style="left:88px;top:100px;letter-spacing:.14em">LEAD</span>
+            <span class="microtag" style="left:290px;top:100px;letter-spacing:.14em">QUALIFIED</span>
+            <span class="microtag" style="left:492px;top:100px;letter-spacing:.14em;color:#0A7B5C">WON</span>
+          </div>
+
+          <div id="blocks"></div>
+
+          <!-- the barrier wall (fixed geometry → deterministic shatter grid) -->
+          <div id="wall">
+            <div class="brick" style="left:44px;top:60px;width:372px;height:88px;font-size:60px">COST</div>
+            <div class="brick" style="left:424px;top:60px;width:244px;height:88px;font-size:26px">18 MONTHS</div>
+            <div class="brick" style="left:44px;top:156px;width:252px;height:88px;font-size:46px">CODE</div>
+            <div class="brick" style="left:304px;top:156px;width:364px;height:88px;font-size:34px">COMPLEXITY</div>
+            <div class="brick m-hide" style="left:44px;top:252px;width:336px;height:88px;font-size:33px">DEVELOPERS</div>
+            <div class="brick" style="left:388px;top:252px;width:280px;height:88px;font-size:54px">TIME</div>
+            <div class="brick" style="left:44px;top:348px;width:296px;height:88px;font-size:30px">$180K/YEAR</div>
+            <div class="brick m-hide" style="left:348px;top:348px;width:320px;height:88px;font-size:24px">TECHNICAL DEBT</div>
+          </div>
+
+          <div id="frags"></div>
+
+          <div id="laser"></div>
+          <div id="laserHead"></div>
+          <div id="flash"></div>
+
+          <div id="stamp">PAID</div>
+          <div id="ring"></div>
+
+          <div id="you">
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4.5 2.4 4.5 19.6 9 15.9 11.6 21.8 14.6 20.5 12 14.7 17.8 14.2 Z"
+                    fill="#00C386" stroke="#06231A" stroke-width="1.1" stroke-linejoin="round"/>
+            </svg>
+            <span class="tag">You</span>
+          </div>
+
+          <div id="caption">// the old way</div>
+        </div>
+      </div>
+
+      <button id="replay" type="button" aria-label="Replay the intro animation">↺ replay intro</button>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+"use strict";
+if(!window.gsap){ document.documentElement.classList.add('no-anim'); return; }
+
+/* ═══════════════════ 1 · CONFIG, FLAGS, HELPERS ═══════════════════ */
+const T = {                    // ← master timing map (tweak here)
+  laser:      2.25,            // laser starts drawing
+  laserDur:   0.65,
+  shatter:    2.95,            // impact frame (headline “Breaking” lands here)
+  morph:      0.95,            // app→app morph duration
+  appsStart:  2.05             // apps begin, seconds after shatter
+};
+const SW = 720, SH = 560, LASER_Y = 248, POOL = 40;
+const RM       = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NARROW   = matchMedia('(max-width: 479px)').matches;
+const FINE_PTR = matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const rand = (a,b) => a + Math.random()*(b-a);
+
+const hero=$('#hero'), stage=$('#stage'), scaler=$('#scaler'), stageCol=$('#stageCol'),
+      wall=$('#wall'), wallGlow=$('#wallGlow'), frags=$('#frags'), blocksWrap=$('#blocks'),
+      laser=$('#laser'), laserHead=$('#laserHead'), flash=$('#flash'),
+      stamp=$('#stamp'), ring=$('#ring'), you=$('#you'), caption=$('#caption'), replay=$('#replay');
+
+const CHROME = {
+  bookings:$('#chrome-bookings'), invoices:$('#chrome-invoices'),
+  fleet:$('#chrome-fleet'), crm:$('#chrome-crm')
+};
+const chromeEls = Object.values(CHROME);
+
+/* block material palette (solids — must read on the dark canvas mid-flight) */
+const MAT = {
+  card:'#F7FAF9', cardBd:'rgba(16,24,22,.06)',
+  neutral:'#E8EDEB', neutralBd:'#D9E1DD', neutralTxt:'#3F4C46',
+  row:'#FFFFFF',   rowBd:'#E3E9E6',      rowTxt:'#2A3530',
+  green:'#D2F5E8', greenBd:'#7EDABE',    greenTxt:'#0A7B5C',
+  solid:'#00C386', solidTxt:'#06231A',
+  well:'#EDF1EF',  ink:'#101816', mut:'#5C6E67',
+  home:'rgba(139,166,156,.09)', homeBd:'rgba(139,166,156,.24)'   /* reads on dark bg AND mid-flight over the white card */
+};
+const CARD_SHADOW = '0 34px 90px -30px rgba(2,7,5,.65), 0 0 0 1px rgba(247,250,249,.05)';
+const NO_SHADOW   = '0 0px 0px 0px rgba(2,7,5,0)';
+
+/* ═══════════════════ 2 · BLOCK SYSTEM ═════════════════════════════ */
+const blocks=[], labL=[], labR=[];
+for(let i=0;i<POOL;i++){
+  const b=document.createElement('div'); b.className='blk';
+  const l=document.createElement('span'); l.className='bl';
+  const r=document.createElement('span'); r.className='br';
+  b.appendChild(l); b.appendChild(r); blocksWrap.appendChild(b);
+  blocks.push(b); labL.push(l); labR.push(r);
+}
+const homeSpec=(i,op)=>({
+  x:80+(i%8)*78, y:117+((i/8)|0)*78, w:14, h:14, r:4,
+  bg:MAT.home, bd:MAT.homeBd, op:op, zi:0, lab:'', amt:''   /* z0: parked blocks tuck under the app card */
+});
+function setBlockText(i,s){
+  labL[i].textContent = s.lab||'';
+  labR[i].textContent = s.amt||'';
+  labL[i].style.cssText = 'font-size:'+(s.lfs||10)+'px;font-weight:'+(s.lwt||600)+';color:'+(s.lc||MAT.neutralTxt)+
+    (s.mono?';font-family:var(--f-mono)':';font-family:var(--f-sans)');
+  labR[i].style.cssText = 'font-size:'+(s.afs||10)+'px;font-weight:'+(s.awt||600)+';color:'+(s.ac||s.lc||MAT.ink);
+  blocks[i].style.justifyContent = s.center ? 'center' : 'space-between';
+}
+
+/* ═══════════════════ 3 · SCENE DEFINITIONS ════════════════════════ */
+/* Every scene = same 40 blocks. Unused blocks rest faintly on the home
+   grid — “the same blocks, endless businesses.” Block 0 is always the
+   app card. Indices 1–7 are the primary content items in every app so
+   the SAME elements cycle appointment → invoice row → route → deal.   */
+
+function sceneBookings(){
+  const B={};
+  B[0]={x:50,y:36,w:620,h:488,r:16,bg:MAT.card,bd:MAT.cardBd,op:1,zi:1};
+  /* appointments snap to the calendar lattice: col = 83px, row = 56px */
+  const ap=(c,r,rows,lab,green)=>({x:73+c*83, y:108+r*56, w:77, h:rows*56-8, r:7,
+    bg:green?MAT.green:MAT.neutral, bd:green?MAT.greenBd:MAT.neutralBd,
+    lab:lab, lc:green?MAT.greenTxt:MAT.neutralTxt, lfs:9.5, op:1, zi:3, d:.16});
+  B[1]=ap(0,0,1,'Site visit',1);  B[2]=ap(1,1,1,'Quote #112');
+  B[3]=ap(2,0,2,'Install 2A');    B[4]=ap(3,0,1,'Install 4B',1);
+  B[5]=ap(4,0,1,'Estimate');      B[6]=ap(5,1,2,'Crew A');
+  B[7]=ap(2,2,1,'Delivery');      B[8]=ap(6,1,1,'Inspection');
+  B[9]=ap(1,3,2,'Repair · Elm');  B[10]=ap(5,0,1,'Walk-thru');
+  B[11]=ap(6,3,1,'Follow-up');    B[13]=ap(0,2,1,'Quote #118');
+  B[14]=ap(4,4,1,'Site survey');  B[15]=ap(3,4,1,'Install 5C');
+  B[16]=ap(1,5,1,'Crew B');       B[17]=ap(6,5,1,'Delivery');
+  B[12]={x:538,y:452,w:112,h:32,r:999,bg:MAT.solid,bd:MAT.solid,lab:'+ New booking',
+         lc:MAT.solidTxt,lfs:10,center:1,op:1,zi:4,d:.22};
+  return {name:'bookings', blocks:B, story:storyBookings};
+}
+function sceneInvoices(){
+  const B={};
+  B[0]={x:110,y:40,w:500,h:480,r:16,bg:MAT.card,bd:MAT.cardBd,op:1,zi:1};
+  const items=[['Concrete delivery — 6 yd','$840'],['Crew labor — 32 hrs','$2,560'],
+               ['Equipment rental','$410'],['Permit filing','$180'],['Site cleanup','$260']];
+  items.forEach((it,k)=>{ B[k+1]={x:134,y:152+k*48,w:452,h:40,r:9,bg:MAT.row,bd:MAT.rowBd,
+    lab:it[0],amt:it[1],lc:MAT.rowTxt,lwt:500,lfs:11,afs:11,ac:MAT.ink,op:1,zi:3,d:.16}; });
+  B[6]={x:134,y:412,w:452,h:48,r:10,bg:'#E6EFEA',bd:'#D5E2DC',lab:'Total',amt:'$0',
+        lc:MAT.ink,lwt:700,lfs:12,afs:13,awt:700,ac:MAT.ink,op:1,zi:3,d:.2};
+  B[8]={x:134,y:90,w:40,h:40,r:10,bg:MAT.green,bd:MAT.greenBd,lab:'MB',lc:MAT.greenTxt,
+        lfs:11,lwt:700,center:1,op:1,zi:3,d:.2};
+  return {name:'invoices', blocks:B, story:storyInvoices};
+}
+function sceneFleet(){
+  const B={};
+  B[0]={x:40,y:56,w:640,h:448,r:16,bg:MAT.card,bd:MAT.cardBd,op:1,zi:1};
+  const bar=(x,y,w,lab,green)=>({x:x,y:y,w:w,h:32,r:8,
+    bg:green?MAT.green:MAT.neutral, bd:green?MAT.greenBd:MAT.neutralBd,
+    lab:lab, lc:green?MAT.greenTxt:MAT.neutralTxt, lfs:9.5, op:1, zi:3, d:.16});
+  B[1]=bar(204,132,150,'Northside loop',1); B[2]=bar(372,132,110,'Depot run');
+  B[3]=bar(240,192,180,'Cedar Ave install'); B[7]=bar(444,192,120,'Return leg');
+  B[4]=bar(204,252,96,'Pickup #88');        B[5]=bar(318,252,170,'Eastside delivery');
+  B[6]=bar(258,312,140,'Refuel · service');
+  const trk=(k,y,lab)=>({x:56,y:y,w:128,h:40,r:8,bg:'#EDF1EF',bd:'#DEE5E1',
+    lab:lab,lc:'#42504A',lfs:9,mono:1,lwt:500,op:1,zi:3,d:.1});
+  B[14]=trk(0,128,'TRK-07 · Dana'); B[15]=trk(1,188,'TRK-12 · Marco');
+  B[16]=trk(2,248,'TRK-03 · Priya'); B[17]=trk(3,308,'TRK-21 · Sam');
+  B[18]=trk(4,368,'TRK-09 · Lee');
+  B[13]=bar(200,434,140,'Harbor pickup',1); B[13].d=.24;
+  return {name:'fleet', blocks:B, story:storyFleet};
+}
+function sceneCrm(){
+  const B={};
+  B[0]={x:50,y:44,w:620,h:472,r:16,bg:MAT.card,bd:MAT.cardBd,op:1,zi:1};
+  [78,280,482].forEach((x,k)=>{ B[20+k]={x:x,y:118,w:184,h:372,r:12,bg:MAT.well,
+    bd:'rgba(16,24,22,0)',op:1,zi:2,d:.08}; });
+  const card=(x,y,lab,amt,won)=>({x:x,y:y,w:164,h:54,r:9,
+    bg:won?MAT.green:'#FFFFFF', bd:won?MAT.greenBd:'#E1E7E4',
+    lab:lab, amt:amt, lc:MAT.ink, lwt:600, lfs:10.5, afs:10, awt:500,
+    ac:won?MAT.greenTxt:MAT.mut, op:1, zi:3, d:.18});
+  B[1]=card(88,130,'Acme Paving','$12k');      B[2]=card(88,194,'Brightline HVAC','$8k');
+  B[3]=card(88,258,'Copper Key Homes','$21k'); B[4]=card(290,130,'Meridian Builders','$28k');
+  B[5]=card(290,194,'Nova Logistics','$16k');  B[6]=card(492,130,'Summit Roofing','$9k',1);
+  B[7]=card(492,194,'Delta Fabrication','$14k',1);
+  return {name:'crm', blocks:B, story:storyCrm};
+}
+const SCENES={bookings:sceneBookings, invoices:sceneInvoices, fleet:sceneFleet, crm:sceneCrm};
+const ORDER = NARROW ? ['bookings','invoices'] : ['bookings','invoices','fleet','crm'];
+
+/* ═══════════════════ 4 · MORPH ENGINE (FLIP-style) ════════════════ */
+/* Fresh timelines every cycle → tweens always read the true current
+   state, so the drag micro-stories never cause snap-backs.           */
+function morphTo(scene){
+  const tl=gsap.timeline();
+  const specs=[];
+  for(let i=0;i<POOL;i++) specs[i]=scene.blocks[i]||homeSpec(i,.4);
+  tl.to([labL,labR].flat(),{opacity:0,duration:.16,ease:'power1.out'},0);
+  tl.to(chromeEls,{opacity:0,duration:.22,ease:'power1.out'},0);
+  tl.to([stamp,you],{opacity:0,duration:.18},0);
+  specs.forEach((s,i)=>{
+    /* blocks leaving the app fly home ABOVE the card (z2), so the
+       “same blocks reassemble” continuity stays visible; they tuck
+       under the card (z0) only after landing.                      */
+    tl.set(blocks[i],{zIndex:s.zi===0?2:s.zi},.01);
+    tl.to(blocks[i],{x:s.x,y:s.y,width:s.w,height:s.h,borderRadius:s.r,
+      backgroundColor:s.bg,borderColor:s.bd,opacity:s.op,
+      duration:T.morph,ease:'power2.inOut'}, .04+(s.d||0)+i*.006);
+    if(s.zi===0) tl.set(blocks[i],{zIndex:0}, T.morph+.28);
+  });
+  tl.to(blocks[0],{boxShadow:CARD_SHADOW,duration:.6,ease:'power1.inOut'},.15);
+  tl.call(()=>{ specs.forEach((s,i)=>setBlockText(i,s)); },null,T.morph*.55);
+  const withText=[];
+  specs.forEach((s,i)=>{ if(s.lab||s.amt){ withText.push(labL[i],labR[i]); } });
+  tl.to(withText,{opacity:1,duration:.3,stagger:.012,ease:'power1.out'},T.morph+.02);
+  tl.to(CHROME[scene.name],{opacity:1,duration:.35,ease:'power1.out'},T.morph-.02);
+  return tl;
+}
+let cycleGuard=0;
+function playScene(name, idx){
+  const scene=SCENES[name]();
+  const tl=gsap.timeline({onComplete:()=>{
+    const next=(idx+1)%ORDER.length;
+    if(++cycleGuard<10000) playScene(ORDER[next], next);   // Act 4: loop forever
+  }});
+  tl.add(morphTo(scene),0);
+  tl.add(scene.story(),T.morph+.28);
+  tl.to({},{duration:.3});                                  // breathe before next morph
+  return tl;
+}
+
+/* ═══════════════════ 5 · CURSOR + FX HELPERS ══════════════════════ */
+function cursorIn(tl,x,y,at){
+  tl.set(you,{x:x+40,y:y+50},at);
+  tl.to(you,{opacity:1,x:x,y:y,duration:.5,ease:'power2.out'},at);
+}
+function pulse(tl,cx,cy,w,h,r,at){
+  tl.set(ring,{x:cx-w/2,y:cy-h/2,width:w,height:h,borderRadius:r,scale:.6,opacity:0},at);
+  tl.to(ring,{opacity:.85,scale:1,duration:.16,ease:'power1.out'},at);
+  tl.to(ring,{opacity:0,scale:1.35,duration:.5,ease:'power2.out'},at+.16);
+}
+/* pick up block bi at its spec position, drag it to (tx,ty), set it down */
+function drag(tl,bi,from,to,at,opts){
+  opts=opts||{};
+  const gx=from.x+from.w*.62, gy=from.y+from.h*.58;
+  const el=blocks[bi];
+  tl.to(you,{x:gx,y:gy,duration:.55,ease:'power2.inOut'},at);
+  tl.to(you,{scale:.88,duration:.1,transformOrigin:'5px 4px'},at+.55);
+  tl.set(el,{zIndex:14,boxShadow:NO_SHADOW},at+.55);
+  tl.to(el,{boxShadow:'0 18px 44px -10px rgba(2,7,5,.4)',scale:1.045,duration:.16},at+.55);
+  const mvAt=at+.72, mvDur=.75;
+  tl.to(el,{x:to.x,y:to.y,duration:mvDur,ease:'power2.inOut'},mvAt);
+  tl.to(you,{x:gx+(to.x-from.x),y:gy+(to.y-from.y),duration:mvDur,ease:'power2.inOut'},mvAt);
+  if(opts.onDrop) tl.call(opts.onDrop,null,mvAt+mvDur);
+  tl.to(el,{scale:1,boxShadow:NO_SHADOW,duration:.3,ease:'back.out(2.2)'},mvAt+mvDur);
+  tl.to(you,{scale:1,duration:.16},mvAt+mvDur);
+  tl.set(el,{zIndex:opts.zi!=null?opts.zi:3},mvAt+mvDur+.32);
+  return mvAt+mvDur;                       // timestamp of the drop
+}
+
+/* ═══════════════════ 6 · MICRO-STORIES (one per app) ══════════════ */
+function storyBookings(){
+  const tl=gsap.timeline();
+  cursorIn(tl,470,330,.1);
+  const end=drag(tl,4,{x:322,y:108,w:77,h:48},{x:405,y:276},.45);
+  pulse(tl,405+38,276+24,93,64,10,end+.05);
+  tl.to(blocks[12],{scale:1.06,duration:.16,yoyo:true,repeat:1,ease:'power1.inOut'},end+.3);
+  tl.to({},{duration:.2});
+  return tl;
+}
+function storyInvoices(){
+  const tl=gsap.timeline();
+  const n={v:0};
+  tl.to(n,{v:4250,duration:.9,ease:'power1.out',
+    onUpdate:()=>{ labR[6].textContent='$'+Math.round(n.v).toLocaleString('en-US'); }},.1);
+  cursorIn(tl,420,230,.35);
+  drag(tl,3,{x:134,y:248,w:452,h:40},{x:134,y:296},.7);
+  tl.to(blocks[4],{y:248,duration:.5,ease:'power2.inOut'},1.75);
+  tl.fromTo(stamp,{opacity:0,scale:1.9,rotation:-22},
+    {opacity:1,scale:1,rotation:-10,duration:.5,ease:'expo.out'},2.5);
+  pulse(tl,511,110,150,64,12,2.62);
+  tl.to({},{duration:.3});
+  return tl;
+}
+function storyFleet(){
+  const tl=gsap.timeline();
+  cursorIn(tl,300,400,.1);
+  tl.to($('#ghostSlot'),{opacity:1,duration:.3},.85);
+  const end=drag(tl,13,{x:200,y:434,w:140,h:32},{x:360,y:372},.4);
+  tl.to($('#ghostSlot'),{opacity:0,duration:.25},end);
+  pulse(tl,430,388,160,52,10,end+.05);
+  tl.to({},{duration:.25});
+  return tl;
+}
+function storyCrm(){
+  const tl=gsap.timeline();
+  tl.to(blocks[3],{x:290,y:258,duration:.7,ease:'power2.inOut'},.35); // auto-drift Lead→Qualified
+  cursorIn(tl,420,260,.55);
+  const end=drag(tl,4,{x:290,y:130,w:164,h:54},{x:492,y:258},.95,{
+    onDrop:()=>{ labR[4].style.color=MAT.greenTxt; }
+  });
+  tl.to(blocks[4],{backgroundColor:MAT.green,borderColor:MAT.greenBd,duration:.35},end);
+  pulse(tl,492+82,258+27,180,70,10,end+.05);
+  tl.to({},{duration:.3});
+  return tl;
+}
+
+/* ═══════════════════ 7 · WALL → SHATTER ═══════════════════════════ */
+const bricks=$$('.brick').filter(b=>b.offsetParent!==null || !NARROW);
+const cells=[];                       // every shatter quad, in stage space
+bricks.forEach(b=>{
+  if(NARROW && b.classList.contains('m-hide')) return;
+  const bx=parseFloat(b.style.left), by=parseFloat(b.style.top),
+        bw=parseFloat(b.style.width), bh=parseFloat(b.style.height);
+  const cols=Math.max(3,Math.round(bw/64)), rows=3;
+  const cw=bw/cols, ch=bh/rows;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)
+    cells.push({x:bx+c*cw+1, y:by+r*ch+1, w:cw-2, h:ch-2});
+});
+/* 40 evenly-spread cells seed the survivor blocks; the rest are shards */
+const step=cells.length/POOL, poolCells=[], shardCells=[];
+const taken=new Set();
+for(let i=0;i<POOL;i++){ const k=Math.min(cells.length-1,Math.round(i*step)); taken.add(k); poolCells.push(cells[k]); }
+cells.forEach((c,k)=>{ if(!taken.has(k)) shardCells.push(c); });
+
+const shardEls=shardCells.map(c=>{
+  const f=document.createElement('div'); f.className='frag';
+  const redish=Math.random()<.62;
+  f.style.background = redish?'rgba(255,92,71,.09)':'rgba(247,250,249,.05)';
+  f.style.border = '1px solid '+(redish?'rgba(255,92,71,.32)':'rgba(247,250,249,.15)');
+  frags.appendChild(f);
+  gsap.set(f,{x:c.x,y:c.y,width:c.w,height:c.h});
+  return f;
+});
+
+let jitters=[];
+function startJitter(){
+  bricks.forEach(b=>{
+    jitters.push(gsap.to(b,{x:'+='+rand(-1.6,1.6), y:'+='+rand(-1.2,1.2),
+      duration:rand(1.4,2.4), yoyo:true, repeat:-1, ease:'sine.inOut'}));
+  });
+  glitchTick();
+}
+let glitching=true;
+function glitchTick(){
+  if(!glitching) return;
+  const b=bricks[(Math.random()*bricks.length)|0];
+  gsap.timeline()
+    .to(b,{skewX:rand(-4,4), x:'+='+rand(-3,3), opacity:.55, duration:.05})
+    .to(b,{skewX:0, opacity:1, duration:.09});
+  gsap.delayedCall(rand(.35,.9), glitchTick);
+}
+function zap(b){ b.classList.add('zap'); setTimeout(()=>b.classList.remove('zap'),150); }
+
+function doShatter(){
+  glitching=false; jitters.forEach(j=>j.kill());
+  wall.style.visibility='hidden';
+  frags.style.visibility='visible';
+  /* throwaway shards: pop from the laser line, then eased gravity + fade */
+  shardEls.forEach(f=>{
+    const cx=gsap.getProperty(f,'x'), cy=gsap.getProperty(f,'y');
+    const above=cy<LASER_Y, left=cx<220;
+    gsap.timeline({delay:(cx/SW)*.08+Math.random()*.05})
+      .to(f,{x:'+='+rand(-16,16), y:'+='+(above?rand(-52,-16):rand(10,34)),
+             rotation:rand(-16,16), duration:.16, ease:'power2.out'})
+      .to(f,{x:'+='+(left?rand(-170,-20):rand(-60,90)), y:'+='+rand(240,430),
+             rotation:'+='+rand(-90,90), opacity:0,
+             duration:rand(.7,1.05), ease:'power2.in'},'>-0.02')
+      .set(f,{display:'none'});
+  });
+  /* survivors: same explosion, then regroup into the resting grid */
+  poolCells.forEach((c,i)=>{
+    const el=blocks[i], above=c.y<LASER_Y;
+    gsap.set(el,{x:c.x,y:c.y,width:c.w,height:c.h,borderRadius:3,
+      backgroundColor:'rgba(255,92,71,.10)',borderColor:'rgba(255,92,71,.34)',opacity:1,zIndex:2});
+    const home=homeSpec(i,.95);
+    gsap.timeline({delay:(c.x/SW)*.08+Math.random()*.04})
+      .to(el,{x:'+='+rand(-14,14), y:'+='+(above?rand(-48,-14):rand(8,30)),
+              rotation:rand(-13,13), duration:.16, ease:'power2.out'})
+      .to(el,{x:home.x, y:home.y, width:14, height:14, borderRadius:4, rotation:0,
+              backgroundColor:MAT.home, borderColor:MAT.homeBd, opacity:.95,
+              duration:.95, ease:'power3.inOut',
+              delay:.1+(i%8)*.05+((i/8)|0)*.015},'>-0.02');
+  });
+}
+
+/* ═══════════════════ 8 · AMBIENT LAYER ════════════════════════════ */
+const dotsCv=$('#dots');
+function drawGrid(){
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const w=dotsCv.clientWidth, h=dotsCv.clientHeight;
+  dotsCv.width=w*dpr; dotsCv.height=h*dpr;
+  const ctx=dotsCv.getContext('2d'); ctx.scale(dpr,dpr);
+  for(let y=8, ry=0; y<h; y+=28, ry++) for(let x=8, rx=0; x<w; x+=28, rx++){
+    ctx.fillStyle=(rx%4===2&&ry%4===2)?'rgba(139,166,156,.16)':'rgba(139,166,156,.075)';
+    ctx.beginPath(); ctx.arc(x,y,1,0,7); ctx.fill();
+  }
+}
+function commitTick(){                      /* green pulses along grid lines */
+  if(RM) return;
+  const s=document.createElement('div');
+  const vert=Math.random()<.35; s.className='streak'+(vert?' v':'');
+  const gw=hero.clientWidth, gh=hero.clientHeight;
+  hero.insertBefore(s,hero.children[1]);
+  if(vert){ s.style.left=(8+28*((Math.random()*(gw/28))|0))+'px';
+    gsap.fromTo(s,{y:-120,opacity:0},{y:gh+120,opacity:.32,duration:2.1,ease:'power1.inOut',
+      onUpdate:function(){ if(this.progress()>.75) gsap.set(s,{opacity:.32*(1-(this.progress()-.75)/.25)}); },
+      onComplete:()=>s.remove()});
+  } else { s.style.top=(8+28*((Math.random()*(gh/28))|0))+'px';
+    gsap.fromTo(s,{x:-120,opacity:0},{x:gw+120,opacity:.32,duration:2.1,ease:'power1.inOut',
+      onUpdate:function(){ if(this.progress()>.75) gsap.set(s,{opacity:.32*(1-(this.progress()-.75)/.25)}); },
+      onComplete:()=>s.remove()});
+  }
+  gsap.delayedCall(rand(3.5,7), commitTick);
+}
+if(FINE_PTR && !RM){                        /* ≤8px parallax drift, eased */
+  const bx=gsap.quickTo(dotsCv,'x',{duration:.9,ease:'power3'}),
+        by=gsap.quickTo(dotsCv,'y',{duration:.9,ease:'power3'}),
+        sx=gsap.quickTo(stage,'x',{duration:.9,ease:'power3'}),
+        sy=gsap.quickTo(stage,'y',{duration:.9,ease:'power3'});
+  hero.addEventListener('pointermove',e=>{
+    const nx=e.clientX/hero.clientWidth-.5, ny=e.clientY/hero.clientHeight-.5;
+    bx(nx*8); by(ny*6); sx(nx*-7); sy(ny*-5);
+  },{passive:true});
+}
+
+/* ═══════════════════ 9 · SCALE-TO-FIT (720×560 design space) ══════ */
+function fit(){
+  const r=stageCol.getBoundingClientRect();
+  const s=Math.min((r.width-8)/SW,(r.height-24)/SH,1.12);
+  gsap.set(scaler,{scale:s});
+  drawGrid();
+}
+addEventListener('resize',()=>{ clearTimeout(fit._t); fit._t=setTimeout(fit,120); });
+
+/* ═══════════════════ 10 · INITIAL STATES (JS-only → no-JS poster) ═ */
+gsap.set('#nav',{opacity:0,y:-8});
+gsap.set('#eyebrow',{opacity:0,y:10});
+gsap.set('.wi',{yPercent:115});
+gsap.set(['#sub','#ctaRow','#trust'],{opacity:0,y:16});
+gsap.set('.brick',{opacity:0,y:26});
+gsap.set(blocks,{opacity:0});
+gsap.set(blocks[0],{boxShadow:NO_SHADOW});
+gsap.set(you,{scale:1,transformOrigin:'5px 4px'});
+fit();
+
+/* ═══════════════════ 11 · MASTER TIMELINE (Acts 1–2, plays once) ══ */
+function buildMaster(){
+  const M=gsap.timeline({paused:true});
+  M.addLabel('boot',0)
+   .to('#nav',{opacity:1,y:0,duration:.7,ease:'power2.out'},.1)
+   .to('#eyebrow',{opacity:1,y:0,duration:.6,ease:'power2.out'},.3)
+   .to('.brick',{opacity:1,y:0,duration:.9,ease:'expo.out',stagger:{each:.09,from:'random'}},.35)
+   .to(wallGlow,{opacity:1,duration:1.2,ease:'power1.inOut'},.6)
+   .to(caption,{opacity:.85,duration:.5},1.05)
+   .call(startJitter,null,1.15)
+   .to(wallGlow,{opacity:.55,duration:1.1,yoyo:true,repeat:1,ease:'sine.inOut'},1.3);
+
+  M.addLabel('laser',T.laser)
+   .set(laser,{opacity:1},'laser')
+   .to(laser,{scaleX:1,duration:T.laserDur,ease:'power2.in'},'laser')
+   .fromTo(laserHead,{x:0,opacity:0},{x:SW,opacity:1,duration:T.laserDur,ease:'power2.in'},'laser');
+  bricks.forEach(b=>{
+    const cx=parseFloat(b.style.left)+parseFloat(b.style.width)/2;
+    M.call(zap,[b],T.laser+T.laserDur*(cx/SW)*.92);
+  });
+
+  M.addLabel('shatter',T.shatter)
+   .call(doShatter,null,'shatter')
+   .to(flash,{opacity:1,duration:.05},'shatter')
+   .to(flash,{opacity:0,duration:.4},'shatter+=0.05')
+   .to(laser,{opacity:0,duration:.3},'shatter+=0.12')
+   .to(laserHead,{opacity:0,duration:.2},'shatter')
+   .to(wallGlow,{opacity:0,duration:.5},'shatter')
+   .fromTo(stage,{x:0,y:0},{keyframes:[
+      {x:-5,y:3,duration:.05},{x:4,y:-2,duration:.05},{x:-2,y:1,duration:.06},
+      {x:1,y:0,duration:.07},{x:0,y:0,duration:.08}]},'shatter');
+
+  /* headline: word-by-word masked slide-up — “Breaking” lands on impact */
+  M.to('.wi',{yPercent:0,duration:.6,ease:'expo.out',stagger:.07},'shatter-=0.30')
+   .to('.strike',{scaleX:1,duration:.4,ease:'power4.out'},'shatter+=0.55')
+   .to('#sub',{opacity:1,y:0,duration:.7,ease:'power2.out'},'shatter+=0.75')
+   .to('#ctaRow',{opacity:1,y:0,duration:.7,ease:'power2.out'},'shatter+=0.92')
+   .to('#trust',{opacity:1,y:0,duration:.7,ease:'power2.out'},'shatter+=1.06');
+
+  /* canvas beat → hand over to the app cycle (which loops on its own) */
+  M.call(()=>{ caption.textContent='// your canvas';
+               gsap.fromTo(caption,{opacity:0},{opacity:.85,duration:.5});
+               caption.style.color='rgba(0,195,134,.75)'; },null,'shatter+=1.5')
+   .call(()=>{ const b=blocks[27];
+               gsap.timeline().to(b,{backgroundColor:'rgba(0,195,134,.5)',duration:.18})
+                              .to(b,{backgroundColor:MAT.home,duration:.6}); },null,'shatter+=1.8')
+   .call(()=>{ playScene(ORDER[0],0); },null,'shatter+='+T.appsStart)
+   .to(replay,{opacity:.5,duration:.6},'shatter+='+(T.appsStart+1.2));
+  return M;
+}
+
+/* ═══════════════════ 12 · REDUCED MOTION — calm variant ═══════════ */
+function reducedBoot(){
+  gsap.set(['#nav','#eyebrow','#sub','#ctaRow','#trust'],{opacity:1,y:0});
+  gsap.set('.wi',{yPercent:0});
+  gsap.set('.strike',{scaleX:1});
+  wall.style.display='none'; laser.style.display='none'; laserHead.style.display='none';
+  you.style.display='none'; replay.style.display='none';
+  caption.textContent='// your canvas'; caption.style.color='rgba(0,195,134,.75)';
+  gsap.set(caption,{opacity:.85});
+  function apply(name){
+    const sc=SCENES[name]();
+    for(let i=0;i<POOL;i++){
+      const s=sc.blocks[i]||homeSpec(i,.4);
+      gsap.set(blocks[i],{x:s.x,y:s.y,width:s.w,height:s.h,borderRadius:s.r,
+        backgroundColor:s.bg,borderColor:s.bd,opacity:s.op,zIndex:s.zi});
+      setBlockText(i,s); gsap.set([labL[i],labR[i]],{opacity:1});
+    }
+    labR[6].textContent = name==='invoices' ? '$4,250' : labR[6].textContent;
+    chromeEls.forEach(c=>gsap.set(c,{opacity:0}));
+    gsap.set(CHROME[name],{opacity:1});
+    gsap.set(stamp,{opacity:name==='invoices'?1:0,scale:1,rotation:-10});
+    gsap.set(blocks[0],{boxShadow:CARD_SHADOW});
+  }
+  let k=0; apply(ORDER[0]);
+  setInterval(()=>{                     /* gentle crossfade, no movement */
+    k=(k+1)%ORDER.length;
+    gsap.timeline()
+      .to(stage,{opacity:.25,duration:.45,ease:'power1.in'})
+      .call(()=>apply(ORDER[k]))
+      .to(stage,{opacity:1,duration:.55,ease:'power1.out'});
+  },4500);
+}
+
+/* ═══════════════════ 13 · BOOT ════════════════════════════════════ */
+replay.addEventListener('click',()=>location.reload());
+/* dev hook: open index.html?shot=7.5 to freeze the sequence at t=7.5s —
+   handy for design review and storyboard stills. Inert in normal use.  */
+const SHOT=parseFloat(new URLSearchParams(location.search).get('shot'));
+if(!isNaN(SHOT) && !RM){
+  const M=buildMaster();
+  gsap.ticker.remove(gsap.updateRoot);
+  gsap.ticker.lagSmoothing(0);
+  document.fonts.ready.then(()=>{
+    M.play();
+    for(let t=1/60;t<=SHOT;t+=1/60) gsap.updateRoot(t);
+  });
+}
+else if(RM){ reducedBoot(); }
+else{
+  const M=buildMaster();
+  /* start in sync with webfonts (capped) so the wall renders crisp */
+  Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,900))])
+    .then(()=>{ M.play(); commitTick(); });
+}
+})();
+</script>
+</body>
+</html>
