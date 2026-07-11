@@ -12,17 +12,23 @@
      mini-app (true shared-element continuity — nothing is swapped).
 
      ACT STRUCTURE / TIMING MAP  (master GSAP timeline labels, seconds)
-       0.00  boot      nav + eyebrow fade in, brick-words rise into the wall
+       0.00  boot      nav links + eyebrow fade in, brick-words rise into wall
        1.20  hum       low-frequency jitter, glitch ticks, red-orange breathing
-       2.25  laser     the green level-line draws itself L→R (0.65s)
+       1.50  brand in  the CodeBuddy link icon DRAWS ITSELF at the stage edge
+       2.25  laser     the icon rides the green level-line as its head, L→R
        2.95  shatter   wall breaks on impact · headline word “Breaking” lands
                        on the exact shatter frame · “Barriers” gets struck
                        through by a green line at +0.55
-       3.10  debris    ~120 shards fall with eased gravity and fade;
-                       40 survivor blocks regroup into a neat resting grid
-       4.60  canvas    the blank canvas beat — a quiet grid of raw blocks
-       5.00  apps      blocks morph into bookings → invoices → fleet → crm
-                       (~3.5s per app, FLIP-style transform morphs, fresh
+       3.55  flight    the icon flies up into the nav, lands on the logo slot,
+                       and the codebuddy wordmark writes on + sheen sweep
+       3.10  mark      ~120 shards fall and fade; the 40 survivors TRACE THE
+                       CODEBUDDY LINK MARK in brand green (dot-matrix logo),
+                       green bloom + caption “// codebuddy”, pulse wave
+       5.30  canvas    the mark releases its blocks onto the resting grid;
+                       caption flips to “// your canvas”, faint brand
+                       watermark fades in behind the stage
+       6.15  apps      blocks morph into bookings → invoices → fleet → crm
+                       (~4.5s per app, FLIP-style transform morphs, fresh
                        timelines each cycle). Intro plays once per page load;
                        only this app cycle loops (Act 4).
 
@@ -33,9 +39,12 @@
      sequence at any moment (e.g. ?shot=2.95 = the shatter frame) — handy
      for exporting keyframes / presenting the concept as static boards.
 
-     LOGO: the nav mark and favicon embed the official CodeBuddy lockup
-     (vector paths extracted from the client brand kit SVG), styled in the
-     dark-mode treatment — white wordmark, brand-green link icon.
+     LOGO / BRAND THREAD: nav mark + favicon embed the official CodeBuddy
+     lockup (exact vectors from Primary Logo.svg, committed in this repo).
+     The same icon is the hero’s protagonist: it draws itself, breaks the
+     barrier wall, is rebuilt from the debris by the fragments, and flies
+     into the nav where the wordmark writes on. Dark-mode treatment:
+     white wordmark, brand-green link icon (#00C386).
 
      RESPONSIVE INTENT (designed at 1440×800 — see @media notes in CSS):
        1920+  hero centers, stage scales up to 1.12, type maxes at clamp cap
@@ -208,6 +217,20 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
   background:radial-gradient(circle, #CFFFEE 0%, var(--green) 45%, transparent 72%);
   box-shadow:0 0 22px 6px rgba(0,195,134,.55)}
 
+/* the brand icon — draws itself, rides the laser as its head, breaks the
+   wall, then flies up into the nav and becomes the real logo */
+#heroIcon{position:absolute; left:0; top:216px; width:64px; height:64px; z-index:7; opacity:0;
+  filter:drop-shadow(0 0 16px rgba(0,195,134,.65)); will-change:transform}
+#heroIcon path{fill:#00C386; fill-opacity:0; stroke:#00C386; stroke-width:4; stroke-linejoin:round; stroke-linecap:round}
+
+/* green bloom behind the fragment-formed logo (canvas beat) */
+#iconGlow{position:absolute; left:120px; top:16px; width:480px; height:480px; z-index:2; opacity:0;
+  background:radial-gradient(circle, rgba(0,195,134,.15), transparent 62%)}
+
+/* faint brand watermark behind the app canvas (Act 3+) */
+#brandWatermark{position:absolute; left:80px; top:-10px; width:560px; height:560px; opacity:0}
+#brandWatermark path{fill:none; stroke:rgba(0,195,134,.08); stroke-width:.55}
+
 /* shards + blocks */
 #frags{position:absolute; inset:0; z-index:5; visibility:hidden}
 .frag{position:absolute; left:0; top:0; border-radius:3px; will-change:transform,opacity}
@@ -376,6 +399,10 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
       <div class="scaler" id="scaler">
         <div class="stage" id="stage" aria-hidden="true">
           <div id="wallGlow"></div>
+          <svg id="brandWatermark" viewBox="0 0 119 119" aria-hidden="true">
+            <path d="M83.3624 28.8859H64.2503L55.3688 17.6892H35.4135C15.908 17.6892 0 33.6121 0 53.1923C0 72.7724 15.908 88.6954 35.4698 88.6954H54.5256L63.4071 99.892H83.4186C102.98 99.892 118.888 83.9691 118.888 64.389C118.888 44.8088 102.98 28.8859 83.4186 28.8859H83.3624ZM35.4698 35.4126H54.0759L62.9574 46.6093H83.4186C93.1995 46.6093 101.182 54.5989 101.182 64.389C101.182 74.179 93.1995 82.1686 83.4186 82.1686H64.7562L55.8747 70.972H35.4698C25.6889 70.972 17.7068 62.9824 17.7068 53.1923C17.7068 43.4022 25.6889 35.4126 35.4698 35.4126Z"/>
+          </svg>
+          <div id="iconGlow"></div>
 
           <!-- per-app chrome: real HTML microtype, positioned in stage space -->
           <div class="chrome" id="chrome-bookings">
@@ -444,6 +471,9 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
 
           <div id="laser"></div>
           <div id="laserHead"></div>
+          <svg id="heroIcon" viewBox="0 0 119 119" aria-hidden="true">
+            <path id="heroIconPath" d="M83.3624 28.8859H64.2503L55.3688 17.6892H35.4135C15.908 17.6892 0 33.6121 0 53.1923C0 72.7724 15.908 88.6954 35.4698 88.6954H54.5256L63.4071 99.892H83.4186C102.98 99.892 118.888 83.9691 118.888 64.389C118.888 44.8088 102.98 28.8859 83.4186 28.8859H83.3624ZM35.4698 35.4126H54.0759L62.9574 46.6093H83.4186C93.1995 46.6093 101.182 54.5989 101.182 64.389C101.182 74.179 93.1995 82.1686 83.4186 82.1686H64.7562L55.8747 70.972H35.4698C25.6889 70.972 17.7068 62.9824 17.7068 53.1923C17.7068 43.4022 25.6889 35.4126 35.4698 35.4126Z"/>
+          </svg>
           <div id="flash"></div>
 
           <div id="stamp">PAID</div>
@@ -478,9 +508,11 @@ const T = {                    // ← master timing map (tweak here)
   laserDur:   0.65,
   shatter:    2.95,            // impact frame (headline “Breaking” lands here)
   morph:      0.95,            // app→app morph duration
-  appsStart:  2.05             // apps begin, seconds after shatter
+  appsStart:  3.2              // apps begin, seconds after shatter (after the brand-mark beat)
 };
 const SW = 720, SH = 560, LASER_Y = 248, POOL = 40;
+let curScale = 1;                    /* current stage scale (set by fit) */
+let flightLock = false;              /* freezes stage parallax while the icon flies to the nav */
 const RM       = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const NARROW   = matchMedia('(max-width: 479px)').matches;
 const FINE_PTR = matchMedia('(hover:hover) and (pointer:fine)').matches;
@@ -493,7 +525,8 @@ const hero=$('#hero'), stage=$('#stage'), scaler=$('#scaler'), stageCol=$('#stag
       wall=$('#wall'), wallGlow=$('#wallGlow'), frags=$('#frags'), blocksWrap=$('#blocks'),
       laser=$('#laser'), laserHead=$('#laserHead'), flash=$('#flash'),
       stamp=$('#stamp'), ring=$('#ring'), you=$('#you'), caption=$('#caption'), replay=$('#replay');
-const logoA=$('.logo'), cbIcon=$('#cbIcon'), cbWipe=$('#cbWipe'), cbSheen=$('#cbSheen');
+const logoA=$('.logo'), cbIcon=$('#cbIcon'), cbWipe=$('#cbWipe'), cbSheen=$('#cbSheen'),
+      heroIcon=$('#heroIcon'), heroIconPath=$('#heroIconPath'), iconGlow=$('#iconGlow');
 
 const CHROME = {
   bookings:$('#chrome-bookings'), invoices:$('#chrome-invoices'),
@@ -790,19 +823,29 @@ function doShatter(){
              duration:rand(.7,1.05), ease:'power2.in'},'>-0.02')
       .set(f,{display:'none'});
   });
-  /* survivors: same explosion, then regroup into the resting grid */
+  /* survivors: same explosion — then, instead of scattering, they trace
+     THE CODEBUDDY LINK MARK in brand green (the barriers literally become
+     the brand’s canvas). They pulse, then disperse to the resting grid.  */
+  const targets=iconTargets();
   poolCells.forEach((c,i)=>{
-    const el=blocks[i], above=c.y<LASER_Y;
+    const el=blocks[i], above=c.y<LASER_Y, t=targets[i];
     gsap.set(el,{x:c.x,y:c.y,width:c.w,height:c.h,borderRadius:3,
       backgroundColor:'rgba(255,92,71,.10)',borderColor:'rgba(255,92,71,.34)',opacity:1,zIndex:2});
-    const home=homeSpec(i,.95);
     gsap.timeline({delay:(c.x/SW)*.08+Math.random()*.04})
       .to(el,{x:'+='+rand(-14,14), y:'+='+(above?rand(-48,-14):rand(8,30)),
               rotation:rand(-13,13), duration:.16, ease:'power2.out'})
-      .to(el,{x:home.x, y:home.y, width:14, height:14, borderRadius:4, rotation:0,
-              backgroundColor:MAT.home, borderColor:MAT.homeBd, opacity:.95,
-              duration:.95, ease:'power3.inOut',
-              delay:.1+(i%8)*.05+((i/8)|0)*.015},'>-0.02');
+      .to(el,{x:t.x, y:t.y, width:14, height:14, borderRadius:5, rotation:0,
+              backgroundColor:'rgba(0,195,134,.42)', borderColor:'rgba(0,195,134,.8)', opacity:1,
+              duration:.85, ease:'power3.inOut',
+              delay:.14+i*.014},'>-0.02');
+  });
+}
+/* canvas beat, part 2: the mark releases its blocks onto the home grid */
+function disperseToGrid(){
+  blocks.forEach((b,i)=>{
+    const h=homeSpec(i,.95);
+    gsap.to(b,{x:h.x, y:h.y, borderRadius:4, backgroundColor:MAT.home,
+      borderColor:MAT.homeBd, opacity:.95, duration:.6, ease:'power2.inOut', delay:i*.005});
   });
 }
 
@@ -840,9 +883,11 @@ if(FINE_PTR && !RM){                        /* ≤8px parallax drift, eased */
         by=gsap.quickTo(dotsCv,'y',{duration:.9,ease:'power3'}),
         sx=gsap.quickTo(stage,'x',{duration:.9,ease:'power3'}),
         sy=gsap.quickTo(stage,'y',{duration:.9,ease:'power3'});
+  window._sx=sx; window._sy=sy;               /* flight uses these to settle the stage */
   hero.addEventListener('pointermove',e=>{
     const nx=e.clientX/hero.clientWidth-.5, ny=e.clientY/hero.clientHeight-.5;
-    bx(nx*8); by(ny*6); sx(nx*-7); sy(ny*-5);
+    bx(nx*8); by(ny*6);
+    if(!flightLock){ sx(nx*-7); sy(ny*-5); }
   },{passive:true});
 }
 
@@ -850,6 +895,7 @@ if(FINE_PTR && !RM){                        /* ≤8px parallax drift, eased */
 function fit(){
   const r=stageCol.getBoundingClientRect();
   const s=Math.min((r.width-8)/SW,(r.height-24)/SH,1.12);
+  curScale=s;                       /* used by the icon→nav flight math */
   gsap.set(scaler,{scale:s});
   drawGrid();
 }
@@ -867,42 +913,72 @@ gsap.set(blocks[0],{boxShadow:NO_SHADOW});
 gsap.set(you,{scale:1,transformOrigin:'5px 4px'});
 fit();
 
-/* ═══ 10b · BRAND REVEAL — the logo draws itself, writes on, then shines ═══
-   A splendid, on-brand touch: the green link icon draws as a line (echoing
-   the laser that breaks the wall) and snaps together, the wordmark writes on
-   left→right, a light sheen sweeps across the lockup, and it stays alive with
-   a rare idle shimmer + a hover shine. Plays once, inside Act 1.            */
-const ICON_LEN = cbIcon.getTotalLength();
+/* ═══ 10b · THE BRAND IS THE HERO ══════════════════════════════════════════
+   The CodeBuddy link icon is the protagonist of the sequence:
+     1. it DRAWS ITSELF at the stage edge and becomes the laser-level head,
+     2. it SWEEPS across and BREAKS the barrier wall,
+     3. the 40 surviving fragments first ASSEMBLE THE CODEBUDDY MARK in
+        brand green, pulse once (iconGlow bloom), then disperse to the grid,
+     4. meanwhile the icon FLIES INTO THE NAV, lands exactly on the logo
+        slot, and the wordmark WRITES ON with a silhouette-clipped sheen.
+   Alive afterwards: rare idle shimmer + hover shine + brand watermark.     */
+const ICON_LEN = heroIconPath.getTotalLength();
+let logoReady=false;
+
 function setLogoInitial(){
-  gsap.set(cbIcon,{stroke:'#00C386',strokeWidth:3.5,strokeLinejoin:'round',strokeLinecap:'round',
-    fill:'#00C386',fillOpacity:0,strokeDasharray:ICON_LEN,strokeDashoffset:ICON_LEN,strokeOpacity:1});
-  gsap.set(cbIcon,{svgOrigin:'59 60',scale:.7});
+  gsap.set(cbIcon,{fillOpacity:0});                       /* nav icon waits for the flight */
   gsap.set(cbWipe,{attr:{width:0}});
   gsap.set(cbSheen,{opacity:0,attr:{x:-170}});
+  gsap.set(heroIcon,{autoAlpha:0,x:-90,scale:1,transformOrigin:'50% 50%'});
+  gsap.set(heroIconPath,{strokeDasharray:ICON_LEN,strokeDashoffset:ICON_LEN,fillOpacity:0});
 }
-function finalizeLogo(){                       /* reduced-motion / no-JS safety */
-  gsap.set(cbIcon,{clearProps:'stroke,strokeWidth,strokeDasharray,strokeDashoffset,strokeOpacity,transform',
-    fill:'#00C386',fillOpacity:1});
+function finalizeLogo(){                       /* reduced-motion / safety: logo fully formed */
+  logoReady=true;
+  gsap.set(cbIcon,{fillOpacity:1});
   gsap.set(cbWipe,{attr:{width:500}});
   gsap.set(cbSheen,{opacity:0});
+  gsap.set(heroIcon,{autoAlpha:0});
 }
 function sheenSweep(){                          /* silhouette-clipped light pass */
+  if(!logoReady) return gsap.timeline();
   return gsap.timeline()
     .set(cbSheen,{opacity:1,attr:{x:-170}})
     .to(cbSheen,{attr:{x:640},duration:.9,ease:'power1.inOut'})
     .to(cbSheen,{opacity:0,duration:.2},'-=0.12')
     .set(cbSheen,{attr:{x:-170}});
 }
-function logoRevealTL(){
-  return gsap.timeline()
-    .to(cbIcon,{strokeDashoffset:0,duration:.9,ease:'power2.inOut'},0)            // the link draws
-    .to(cbIcon,{scale:1,duration:.75,ease:'back.out(1.9)'},.05)                  // …and snaps together
-    .to(cbIcon,{fillOpacity:1,duration:.4,ease:'power1.out'},.55)               // solidifies
-    .to(cbIcon,{strokeOpacity:0,duration:.4,ease:'power1.out'},.7)
-    .to(cbWipe,{attr:{width:500},duration:.75,ease:'power2.out'},.4)            // wordmark writes on L→R
-    .call(()=>logoA.classList.add('logo-lit'),null,.62)                         // green glow flash
-    .call(()=>logoA.classList.remove('logo-lit'),null,1.55)
-    .add(sheenSweep(),1.0);                                                      // light sheen sweep
+/* icon lands in the nav → reveal the real lockup + write the wordmark on */
+function flyIconToNav(){
+  flightLock=true;
+  if(window._sx){ window._sx(0); window._sy(0); }   /* settle stage parallax to 0 */
+  const nr=cbIcon.getBoundingClientRect(), hr=heroIcon.getBoundingClientRect();
+  const dx=((nr.left+nr.width/2)-(hr.left+hr.width/2))/curScale;
+  const dy=((nr.top+nr.height/2)-(hr.top+hr.height/2))/curScale;
+  const k=(nr.height/hr.height)*gsap.getProperty(heroIcon,'scaleX');
+  gsap.timeline()
+    .to(heroIcon,{x:'+='+dx,duration:.85,ease:'power3.inOut'},0)
+    .to(heroIcon,{y:'+='+dy,duration:.85,ease:'power2.inOut'},0)
+    .to(heroIcon,{scale:k,rotation:0,duration:.85,ease:'power2.in'},0)
+    .call(wordmarkOn,null,.85);
+}
+function wordmarkOn(){
+  logoReady=true; flightLock=false;
+  gsap.set(cbIcon,{fillOpacity:1});                        /* seamless hand-off */
+  gsap.set(heroIcon,{autoAlpha:0});
+  logoA.classList.add('logo-lit');
+  gsap.timeline()
+    .to(cbWipe,{attr:{width:500},duration:.7,ease:'power3.out'},0)
+    .add(sheenSweep(),.35)
+    .call(()=>logoA.classList.remove('logo-lit'),null,1.15);
+}
+/* dot-matrix targets: the 40 blocks trace the link mark, centered on stage */
+function iconTargets(){
+  const pts=[];
+  for(let i=0;i<POOL;i++){
+    const pt=heroIconPath.getPointAtLength(ICON_LEN*i/POOL);
+    pts.push({x:360+(pt.x-59.44)*2.8-7, y:256+(pt.y-58.8)*2.8-7});
+  }
+  return pts;
 }
 function idleShimmer(){ sheenSweep(); gsap.delayedCall(rand(11,17),idleShimmer); }
 if(FINE_PTR){ logoA.addEventListener('mouseenter',sheenSweep); }
@@ -913,7 +989,6 @@ function buildMaster(){
   const M=gsap.timeline({paused:true});
   M.addLabel('boot',0)
    .to('.nav-links',{opacity:1,y:0,duration:.7,ease:'power2.out'},.15)
-   .add(logoRevealTL(),.1)
    .to('#eyebrow',{opacity:1,y:0,duration:.6,ease:'power2.out'},.3)
    .to('.brick',{opacity:1,y:0,duration:.9,ease:'expo.out',stagger:{each:.09,from:'random'}},.35)
    .to(wallGlow,{opacity:1,duration:1.2,ease:'power1.inOut'},.6)
@@ -921,10 +996,21 @@ function buildMaster(){
    .call(startJitter,null,1.15)
    .to(wallGlow,{opacity:.55,duration:1.1,yoyo:true,repeat:1,ease:'sine.inOut'},1.3);
 
-  M.addLabel('laser',T.laser)
-   .set(laser,{opacity:1},'laser')
+  M.addLabel('laser',T.laser);
+
+  /* the brand icon draws itself at the stage edge… */
+  M.set(heroIcon,{autoAlpha:1},'laser-=0.75')
+   .to(heroIconPath,{strokeDashoffset:0,duration:.55,ease:'power2.inOut'},'laser-=0.75')
+   .fromTo(heroIcon,{scale:.5},{scale:1,duration:.6,ease:'back.out(2)'},'laser-=0.75')
+   .to(heroIconPath,{fillOpacity:1,duration:.3,ease:'power1.out'},'laser-=0.3');
+
+  /* …then rides the level-line as its head and breaks the wall */
+  M.set(laser,{opacity:1},'laser')
    .to(laser,{scaleX:1,duration:T.laserDur,ease:'power2.in'},'laser')
-   .fromTo(laserHead,{x:0,opacity:0},{x:SW,opacity:1,duration:T.laserDur,ease:'power2.in'},'laser');
+   .fromTo(laserHead,{x:0,opacity:0},{x:SW,opacity:1,duration:T.laserDur,ease:'power2.in'},'laser')
+   .to(heroIcon,{x:738,duration:T.laserDur,ease:'power2.in'},'laser')
+   .to(heroIcon,{rotation:-7,duration:.3,ease:'power1.in'},'laser')
+   .to(heroIcon,{rotation:0,duration:.3,ease:'power1.out'},'laser+=0.35');
   bricks.forEach(b=>{
     const cx=parseFloat(b.style.left)+parseFloat(b.style.width)/2;
     M.call(zap,[b],T.laser+T.laserDur*(cx/SW)*.92);
@@ -941,6 +1027,11 @@ function buildMaster(){
       {x:-5,y:3,duration:.05},{x:4,y:-2,duration:.05},{x:-2,y:1,duration:.06},
       {x:1,y:0,duration:.07},{x:0,y:0,duration:.08}]},'shatter');
 
+  /* the icon hovers past the broken wall, then flies home into the nav —
+     it lands exactly on the logo slot and the wordmark writes on         */
+  M.to(heroIcon,{y:'+=7',duration:.28,yoyo:true,repeat:1,ease:'sine.inOut'},'shatter+=0.05')
+   .call(flyIconToNav,null,'shatter+=0.62');
+
   /* headline: word-by-word masked slide-up — “Breaking” lands on impact */
   M.to('.wi',{yPercent:0,duration:.6,ease:'expo.out',stagger:.07},'shatter-=0.30')
    .to('.strike',{scaleX:1,duration:.4,ease:'power4.out'},'shatter+=0.55')
@@ -948,13 +1039,21 @@ function buildMaster(){
    .to('#ctaRow',{opacity:1,y:0,duration:.7,ease:'power2.out'},'shatter+=0.92')
    .to('#trust',{opacity:1,y:0,duration:.7,ease:'power2.out'},'shatter+=1.06');
 
-  /* canvas beat → hand over to the app cycle (which loops on its own) */
-  M.call(()=>{ caption.textContent='// your canvas';
+  /* canvas beat: fragments have traced the CodeBuddy mark — bloom, name it,
+     pulse a green wave through it, release blocks to the grid, hand over  */
+  M.to(iconGlow,{opacity:1,duration:.7,ease:'power1.inOut'},'shatter+=1.05')
+   .call(()=>{ caption.textContent='// codebuddy';
+               gsap.fromTo(caption,{opacity:0},{opacity:.9,duration:.4});
+               caption.style.color='rgba(0,195,134,.85)'; },null,'shatter+=1.2')
+   .call(()=>{ blocks.forEach((b,i)=>{ gsap.timeline({delay:i*.009})
+                 .to(b,{backgroundColor:'rgba(0,195,134,.85)',boxShadow:'0 0 12px rgba(0,195,134,.55)',duration:.14})
+                 .to(b,{backgroundColor:'rgba(0,195,134,.42)',boxShadow:'0 0 0px rgba(0,195,134,0)',duration:.4}); }); },null,'shatter+=1.7')
+   .call(disperseToGrid,null,'shatter+=2.35')
+   .to(iconGlow,{opacity:0,duration:.55,ease:'power1.inOut'},'shatter+=2.35')
+   .call(()=>{ caption.textContent='// your canvas';
                gsap.fromTo(caption,{opacity:0},{opacity:.85,duration:.5});
-               caption.style.color='rgba(0,195,134,.75)'; },null,'shatter+=1.5')
-   .call(()=>{ const b=blocks[27];
-               gsap.timeline().to(b,{backgroundColor:'rgba(0,195,134,.5)',duration:.18})
-                              .to(b,{backgroundColor:MAT.home,duration:.6}); },null,'shatter+=1.8')
+               caption.style.color='rgba(0,195,134,.75)'; },null,'shatter+=2.6')
+   .to('#brandWatermark',{opacity:1,duration:1.4,ease:'power1.inOut'},'shatter+=2.9')
    .call(()=>{ playScene(ORDER[0],0); },null,'shatter+='+T.appsStart)
    .to(replay,{opacity:.5,duration:.6},'shatter+='+(T.appsStart+1.2));
   return M;
@@ -967,7 +1066,8 @@ function reducedBoot(){
   gsap.set('.wi',{yPercent:0});
   gsap.set('.strike',{scaleX:1});
   wall.style.display='none'; laser.style.display='none'; laserHead.style.display='none';
-  you.style.display='none'; replay.style.display='none';
+  you.style.display='none'; replay.style.display='none'; heroIcon.style.display='none';
+  gsap.set('#brandWatermark',{opacity:1}); gsap.set(iconGlow,{opacity:0});
   caption.textContent='// your canvas'; caption.style.color='rgba(0,195,134,.75)';
   gsap.set(caption,{opacity:.85});
   function apply(name){
