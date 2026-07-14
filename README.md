@@ -33,8 +33,12 @@ Open `index.html` in any modern browser — no build step, no server needed.
 
 ## Notes
 
-- Only library: GSAP 3 (CDN). Total inline JS ≈ 6 KB gzipped.
-- Official CodeBuddy lockup embedded as inline vector paths (dark-mode
-  treatment: white wordmark + brand-green link icon `#00C386`).
+- Only library: GSAP 3 (CDN). Everything else is hand-built DOM/CSS.
+- Nav logo is **`Primary Logo.png` exactly as provided** (base64-embedded,
+  never redrawn or restyled — reveal/sheen effects are clips and masks over
+  the untouched image).
+- Every app scene is narrated: a value caption (`// invoices — get paid
+  faster`), scene progress dots, and a quiet `✓ synced` toast reinforce
+  what customers can build and how reliably it ships.
 - Full act/timing map and tweakables are documented in the README comment
   block at the top of `index.html`.
