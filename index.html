@@ -27,10 +27,16 @@
        5.30  canvas    the mark releases its blocks onto the resting grid;
                        caption flips to “// your canvas”, faint brand
                        watermark fades in behind the stage
-       6.15  apps      blocks morph into bookings → invoices → fleet → crm
-                       (~4.5s per app, FLIP-style transform morphs, fresh
+       6.15  apps      the blocks build ONE branded CodeBuddy dashboard (the
+                       persistent #shell: brand sidebar + Primary Logo.png
+                       topbar + breadcrumb + search + avatar) and the content
+                       morphs through its four modules — Bookings → Invoices
+                       → Dispatch → Pipeline. The sidebar’s active pill glides
+                       between module icons and the breadcrumb re-types, so a
+                       scene change reads as real product navigation.
+                       (~5.7s per module, FLIP-style transform morphs, fresh
                        timelines each cycle). Intro plays once per page load;
-                       only this app cycle loops (Act 4).
+                       only this module cycle loops (Act 4).
 
      TWEAKING: all key timings live in the `T` object at the top of the main
      script. Scene geometry lives in the four scene functions (sceneBookings…).
@@ -297,12 +303,19 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
   font-family:var(--f-mono); font-size:9.5px; font-weight:600; letter-spacing:.02em;
   color:#0A7B5C; background:rgba(0,195,134,.13); border-radius:6px; padding:3px 8px; line-height:1.4;
 }
+.pg-title{font-family:var(--f-disp); font-size:14px; font-weight:700; letter-spacing:-.01em; color:#101816}
+.m-ico{color:#5C6E67; transition:color .3s}
+.m-ico.on{color:#0A7B5C}
+.sb-av{width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-family:var(--f-sans); font-size:8px; font-weight:700; color:#DFF7EE;
+  background:linear-gradient(135deg,#00A47A,#0E5D44)}
+.sb-av.top{width:26px; height:26px; background:linear-gradient(135deg,#2E8C6E,#175843)}
 .hline{height:1px; background:rgba(16,24,22,.07)}
 .microtag{font-family:var(--f-mono); font-size:9px; font-weight:500; letter-spacing:.1em; color:rgba(16,24,22,.45)}
 
 /* PAID stamp (stage-level so it sits above blocks) */
 #stamp{
-  position:absolute; left:446px; top:86px; width:130px; height:48px; z-index:9; opacity:0;
+  position:absolute; left:492px; top:176px; width:130px; height:48px; z-index:9; opacity:0;
   display:flex; align-items:center; justify-content:center;
   border:2.5px solid var(--green); border-radius:9px; color:#00B37D;
   font-family:var(--f-mono); font-weight:700; font-size:17px; letter-spacing:.32em; text-indent:.32em;
@@ -315,10 +328,10 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
   border:1.5px solid rgba(0,195,134,.55); border-radius:50%;
   box-shadow:0 0 30px rgba(0,195,134,.25), inset 0 0 24px rgba(0,195,134,.15)}
 
-/* “synced” toast — reliability beat at the end of every app story */
-#sync{position:absolute; right:2px; top:10px; z-index:12; opacity:0;
-  font-family:var(--f-mono); font-size:9.5px; font-weight:600; letter-spacing:.06em; color:#3BE0AA;
-  background:rgba(0,195,134,.1); border:1px solid rgba(0,195,134,.3); border-radius:999px; padding:5px 10px}
+/* “synced” toast — reliability beat, docked inside the dashboard topbar */
+#sync{position:absolute; left:566px; top:86px; z-index:12; opacity:0;
+  font-family:var(--f-mono); font-size:9px; font-weight:600; letter-spacing:.06em; color:#0A7B5C;
+  background:rgba(0,195,134,.12); border:1px solid rgba(0,195,134,.28); border-radius:999px; padding:4px 9px}
 
 /* scene progress dots (which mini-app is live) */
 #sceneDots{position:absolute; left:50%; transform:translateX(-50%); top:542px; z-index:7;
@@ -449,53 +462,83 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
           </svg>
           <div id="iconGlow"></div>
 
-          <!-- per-app chrome: real HTML microtype, positioned in stage space -->
+          <!-- ══ THE CODEBUDDY SHELL — persistent product chrome ══
+               One branded dashboard hosts every scene: sidebar with the brand
+               mark + module icons and a sliding active pill, topbar with the
+               real Primary Logo.png, workspace breadcrumb, search and avatar.
+               Scene switches read like real product navigation.            -->
+          <div class="chrome" id="shell">
+            <span id="sideBg" style="left:41px;top:37px;width:53px;height:486px;background:#EFF3F1;
+              border-radius:15px 0 0 15px;border-right:1px solid rgba(16,24,22,.06)"></span>
+            <svg style="left:56px;top:52px" width="22" height="22" viewBox="0 0 119 119" aria-hidden="true">
+              <path fill="#00C386" d="M83.3624 28.8859H64.2503L55.3688 17.6892H35.4135C15.908 17.6892 0 33.6121 0 53.1923C0 72.7724 15.908 88.6954 35.4698 88.6954H54.5256L63.4071 99.892H83.4186C102.98 99.892 118.888 83.9691 118.888 64.389C118.888 44.8088 102.98 28.8859 83.4186 28.8859H83.3624ZM35.4698 35.4126H54.0759L62.9574 46.6093H83.4186C93.1995 46.6093 101.182 54.5989 101.182 64.389C101.182 74.179 93.1995 82.1686 83.4186 82.1686H64.7562L55.8747 70.972H35.4698C25.6889 70.972 17.7068 62.9824 17.7068 53.1923C17.7068 43.4022 25.6889 35.4126 35.4698 35.4126Z"/>
+            </svg>
+            <span id="shellPill" style="left:48px;top:111px;width:38px;height:38px;border-radius:11px;
+              background:rgba(0,195,134,.14);border:1px solid rgba(0,195,134,.3)"></span>
+            <svg class="m-ico" id="mi0" style="left:57px;top:129px" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4.5" width="14" height="12.5" rx="2.5"/><path d="M3 8.5h14M7 2.5v3.5M13 2.5v3.5"/>
+            </svg>
+            <svg class="m-ico" id="mi1" style="left:57px;top:177px" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 2.5h7.5L16 6v11.5H5z"/><path d="M8 9.5h5M8 12.5h5"/>
+            </svg>
+            <svg class="m-ico" id="mi2" style="left:57px;top:225px" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2.5 5.5h9v8h-9zM11.5 8.5h3.5l2.5 2.7v2.3h-6"/><circle cx="6" cy="15.5" r="1.6"/><circle cx="14.5" cy="15.5" r="1.6"/>
+            </svg>
+            <svg class="m-ico" id="mi3" style="left:57px;top:273px" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="2.5" y="3.5" width="4.2" height="13"/><rect x="7.9" y="3.5" width="4.2" height="9"/><rect x="13.3" y="3.5" width="4.2" height="6"/>
+            </svg>
+            <span class="sb-av" style="left:55px;top:478px">JM</span>
+            <img id="shellLogo" alt="" style="left:112px;top:50px;height:15px;width:auto" decoding="async">
+            <span id="crumb" style="left:206px;top:53px;font-family:var(--f-sans);font-size:10.5px;font-weight:500;color:#5C6E67">Meridian Builders · Bookings</span>
+            <span style="left:492px;top:48px;width:112px;height:24px;border-radius:999px;background:rgba(16,24,22,.05);
+              font-family:var(--f-mono);font-size:8.5px;color:#7C948B;display:flex;align-items:center;justify-content:center;letter-spacing:.06em">SEARCH&nbsp;&nbsp;⌘K</span>
+            <span class="sb-av top" style="left:632px;top:46px">AT</span>
+            <span class="hline" style="left:95px;top:80px;width:584px"></span>
+          </div>
+
+          <!-- per-module pages (scene chrome) inside the shell content area -->
           <div class="chrome" id="chrome-bookings">
-            <span class="dots" style="left:68px;top:52px;width:36px;height:8px"><span></span><span></span><span></span></span>
-            <span class="chip" style="left:112px;top:45px">bookings.app</span>
-            <span class="hline" style="left:51px;top:80px;width:618px"></span>
-            <span class="microtag" style="left:70px;top:87px;width:83px;text-align:center">MON</span>
-            <span class="microtag" style="left:153px;top:87px;width:83px;text-align:center">TUE</span>
-            <span class="microtag" style="left:236px;top:87px;width:83px;text-align:center">WED</span>
-            <span class="microtag" style="left:319px;top:87px;width:83px;text-align:center">THU</span>
-            <span class="microtag" style="left:402px;top:87px;width:83px;text-align:center">FRI</span>
-            <span class="microtag" style="left:485px;top:87px;width:83px;text-align:center">SAT</span>
-            <span class="microtag" style="left:568px;top:87px;width:83px;text-align:center">SUN</span>
-            <span style="left:70px;top:104px;width:581px;height:392px;
+            <span class="pg-title" style="left:110px;top:90px">Bookings</span>
+            <span class="chip" style="left:184px;top:88px">This week · 28</span>
+            <span class="microtag" style="left:118px;top:124px;width:76px;text-align:center">MON</span>
+            <span class="microtag" style="left:194px;top:124px;width:76px;text-align:center">TUE</span>
+            <span class="microtag" style="left:270px;top:124px;width:76px;text-align:center">WED</span>
+            <span class="microtag" style="left:346px;top:124px;width:76px;text-align:center">THU</span>
+            <span class="microtag" style="left:422px;top:124px;width:76px;text-align:center">FRI</span>
+            <span class="microtag" style="left:498px;top:124px;width:76px;text-align:center">SAT</span>
+            <span class="microtag" style="left:574px;top:124px;width:76px;text-align:center">SUN</span>
+            <span style="left:118px;top:140px;width:532px;height:336px;
               background-image:repeating-linear-gradient(to bottom, rgba(16,24,22,.05) 0 1px, transparent 1px 56px),
-                               repeating-linear-gradient(to right, rgba(16,24,22,.035) 0 1px, transparent 1px 83px);"></span>
+                               repeating-linear-gradient(to right, rgba(16,24,22,.035) 0 1px, transparent 1px 76px);"></span>
           </div>
 
           <div class="chrome" id="chrome-invoices">
-            <span class="dots" style="left:128px;top:56px;width:36px;height:8px"><span></span><span></span><span></span></span>
-            <span class="chip" style="left:172px;top:49px">invoices.app</span>
-            <span class="hline" style="left:111px;top:84px;width:498px"></span>
-            <span style="left:180px;top:93px;font-family:var(--f-sans);font-size:14.5px;font-weight:700;color:#101816">Invoice #2041</span>
-            <span style="left:180px;top:115px;font-family:var(--f-sans);font-size:11px;font-weight:500;color:#5C6E67">Meridian Builders · Net 30</span>
-            <span class="microtag" style="left:446px;top:99px;width:140px;text-align:right;letter-spacing:.08em">DUE JUL 25</span>
-            <span class="hline" style="left:134px;top:402px;width:452px"></span>
+            <span class="pg-title" style="left:110px;top:90px">Invoices</span>
+            <span class="chip" style="left:180px;top:88px">Overdue · 0</span>
+            <span style="left:176px;top:130px;font-family:var(--f-sans);font-size:14.5px;font-weight:700;color:#101816">Invoice #2041</span>
+            <span style="left:176px;top:152px;font-family:var(--f-sans);font-size:11px;font-weight:500;color:#5C6E67">Meridian Builders · Net 30</span>
+            <span class="microtag" style="left:470px;top:136px;width:178px;text-align:right;letter-spacing:.08em">DUE JUL 25</span>
+            <span class="hline" style="left:126px;top:428px;width:522px"></span>
           </div>
 
           <div class="chrome" id="chrome-fleet">
-            <span class="dots" style="left:58px;top:72px;width:36px;height:8px"><span></span><span></span><span></span></span>
-            <span class="chip" style="left:102px;top:65px">fleet.app</span>
-            <span class="hline" style="left:41px;top:100px;width:638px"></span>
-            <span style="left:200px;top:106px;width:456px;height:12px;display:flex;justify-content:space-between;position:absolute">
+            <span class="pg-title" style="left:110px;top:90px">Dispatch</span>
+            <span class="chip" style="left:184px;top:88px">On-time · 98%</span>
+            <span style="left:252px;top:124px;width:404px;height:12px;display:flex;justify-content:space-between;position:absolute">
               <span class="microtag" style="position:static">6A</span><span class="microtag" style="position:static">8A</span><span class="microtag" style="position:static">10A</span><span class="microtag" style="position:static">12P</span><span class="microtag" style="position:static">2P</span><span class="microtag" style="position:static">4P</span>
             </span>
-            <span style="left:200px;top:122px;width:457px;height:292px;
-              background-image:repeating-linear-gradient(to right, rgba(16,24,22,.045) 0 1px, transparent 1px 76px);"></span>
-            <span class="microtag" style="left:58px;top:442px;letter-spacing:.14em">UNASSIGNED</span>
-            <span id="ghostSlot" style="left:356px;top:370px;width:148px;height:36px;border:1.5px dashed rgba(0,195,134,.55);border-radius:9px;opacity:0"></span>
+            <span style="left:252px;top:136px;width:405px;height:272px;
+              background-image:repeating-linear-gradient(to right, rgba(16,24,22,.045) 0 1px, transparent 1px 67px);"></span>
+            <span class="microtag" style="left:118px;top:451px;letter-spacing:.14em">UNASSIGNED</span>
+            <span id="ghostSlot" style="left:380px;top:364px;width:148px;height:40px;border:1.5px dashed rgba(0,195,134,.55);border-radius:9px;opacity:0"></span>
           </div>
 
           <div class="chrome" id="chrome-crm">
-            <span class="dots" style="left:68px;top:60px;width:36px;height:8px"><span></span><span></span><span></span></span>
-            <span class="chip" style="left:112px;top:53px">crm.app</span>
-            <span class="hline" style="left:51px;top:88px;width:618px"></span>
-            <span class="microtag" style="left:88px;top:100px;letter-spacing:.14em">LEAD</span>
-            <span class="microtag" style="left:290px;top:100px;letter-spacing:.14em">QUALIFIED</span>
-            <span class="microtag" style="left:492px;top:100px;letter-spacing:.14em;color:#0A7B5C">WON</span>
+            <span class="pg-title" style="left:110px;top:90px">Pipeline</span>
+            <span class="chip" style="left:182px;top:88px">This month · $51k</span>
+            <span class="microtag" style="left:122px;top:124px;letter-spacing:.14em">LEAD</span>
+            <span class="microtag" style="left:304px;top:124px;letter-spacing:.14em">QUALIFIED</span>
+            <span class="microtag" style="left:486px;top:124px;letter-spacing:.14em;color:#0A7B5C">WON</span>
           </div>
 
           <div id="blocks"></div>
@@ -616,6 +659,7 @@ function setBlockText(i,s){
     (s.mono?';font-family:var(--f-mono)':';font-family:var(--f-sans)');
   labR[i].style.cssText = 'font-size:'+(s.afs||10)+'px;font-weight:'+(s.awt||600)+';color:'+(s.ac||s.lc||MAT.ink);
   blocks[i].style.justifyContent = s.center ? 'center' : 'space-between';
+  blocks[i].style.padding = s.tight ? '0 6px' : '0 9px';   /* narrow calendar cells */
 }
 
 /* ═══════════════════ 3 · SCENE DEFINITIONS ════════════════════════ */
@@ -624,13 +668,16 @@ function setBlockText(i,s){
    app card. Indices 1–7 are the primary content items in every app so
    the SAME elements cycle appointment → invoice row → route → deal.   */
 
+/* All scenes live inside one branded shell: card 40,36,640,488 with a 54px
+   sidebar → content area x:110–664, y:120–508 (page title row above).      */
+const SHELL_CARD={x:40,y:36,w:640,h:488,r:16,bg:MAT.card,bd:MAT.cardBd,op:1,zi:1};
 function sceneBookings(){
   const B={};
-  B[0]={x:50,y:36,w:620,h:488,r:16,bg:MAT.card,bd:MAT.cardBd,op:1,zi:1};
-  /* appointments snap to the calendar lattice: col = 83px, row = 56px */
-  const ap=(c,r,rows,lab,green)=>({x:73+c*83, y:108+r*56, w:77, h:rows*56-8, r:7,
+  B[0]={...SHELL_CARD};
+  /* appointments snap to the calendar lattice: col = 76px, row = 56px */
+  const ap=(c,r,rows,lab,green)=>({x:121+c*76, y:144+r*56, w:70, h:rows*56-8, r:7,
     bg:green?MAT.green:MAT.neutral, bd:green?MAT.greenBd:MAT.neutralBd,
-    lab:lab, lc:green?MAT.greenTxt:MAT.neutralTxt, lfs:9.5, op:1, zi:3, d:.16});
+    lab:lab, lc:green?MAT.greenTxt:MAT.neutralTxt, lfs:8.5, tight:1, op:1, zi:3, d:.16});
   B[1]=ap(0,0,1,'Site visit',1);  B[2]=ap(1,1,1,'Quote #112');
   B[3]=ap(2,0,2,'Install 2A');    B[4]=ap(3,0,1,'Install 4B',1);
   B[5]=ap(4,0,1,'Estimate');      B[6]=ap(5,1,2,'Crew A');
@@ -639,54 +686,54 @@ function sceneBookings(){
   B[11]=ap(6,3,1,'Follow-up');    B[13]=ap(0,2,1,'Quote #118');
   B[14]=ap(4,4,1,'Site survey');  B[15]=ap(3,4,1,'Install 5C');
   B[16]=ap(1,5,1,'Crew B');       B[17]=ap(6,5,1,'Delivery');
-  B[12]={x:538,y:452,w:112,h:32,r:999,bg:MAT.solid,bd:MAT.solid,lab:'+ New booking',
+  B[12]={x:552,y:466,w:112,h:32,r:999,bg:MAT.solid,bd:MAT.solid,lab:'+ New booking',
          lc:MAT.solidTxt,lfs:10,center:1,op:1,zi:4,d:.22};
   return {name:'bookings', blocks:B, story:storyBookings};
 }
 function sceneInvoices(){
   const B={};
-  B[0]={x:110,y:40,w:500,h:480,r:16,bg:MAT.card,bd:MAT.cardBd,op:1,zi:1};
+  B[0]={...SHELL_CARD};
   const items=[['Concrete delivery — 6 yd','$840'],['Crew labor — 32 hrs','$2,560'],
                ['Equipment rental','$410'],['Permit filing','$180'],['Site cleanup','$260']];
-  items.forEach((it,k)=>{ B[k+1]={x:134,y:152+k*48,w:452,h:40,r:9,bg:MAT.row,bd:MAT.rowBd,
+  items.forEach((it,k)=>{ B[k+1]={x:126,y:184+k*48,w:522,h:40,r:9,bg:MAT.row,bd:MAT.rowBd,
     lab:it[0],amt:it[1],lc:MAT.rowTxt,lwt:500,lfs:11,afs:11,ac:MAT.ink,op:1,zi:3,d:.16}; });
-  B[6]={x:134,y:412,w:452,h:48,r:10,bg:'#E6EFEA',bd:'#D5E2DC',lab:'Total',amt:'$0',
+  B[6]={x:126,y:440,w:522,h:48,r:10,bg:'#E6EFEA',bd:'#D5E2DC',lab:'Total',amt:'$0',
         lc:MAT.ink,lwt:700,lfs:12,afs:13,awt:700,ac:MAT.ink,op:1,zi:3,d:.2};
-  B[8]={x:134,y:90,w:40,h:40,r:10,bg:MAT.green,bd:MAT.greenBd,lab:'MB',lc:MAT.greenTxt,
+  B[8]={x:126,y:126,w:40,h:40,r:10,bg:MAT.green,bd:MAT.greenBd,lab:'MB',lc:MAT.greenTxt,
         lfs:11,lwt:700,center:1,op:1,zi:3,d:.2};
   return {name:'invoices', blocks:B, story:storyInvoices};
 }
 function sceneFleet(){
   const B={};
-  B[0]={x:40,y:56,w:640,h:448,r:16,bg:MAT.card,bd:MAT.cardBd,op:1,zi:1};
+  B[0]={...SHELL_CARD};
   const bar=(x,y,w,lab,green)=>({x:x,y:y,w:w,h:32,r:8,
     bg:green?MAT.green:MAT.neutral, bd:green?MAT.greenBd:MAT.neutralBd,
     lab:lab, lc:green?MAT.greenTxt:MAT.neutralTxt, lfs:9.5, op:1, zi:3, d:.16});
-  B[1]=bar(204,132,150,'Northside loop',1); B[2]=bar(372,132,110,'Depot run');
-  B[3]=bar(240,192,180,'Cedar Ave install'); B[7]=bar(444,192,120,'Return leg');
-  B[4]=bar(204,252,96,'Pickup #88');        B[5]=bar(318,252,170,'Eastside delivery');
-  B[6]=bar(258,312,140,'Refuel · service');
-  const trk=(k,y,lab)=>({x:56,y:y,w:128,h:40,r:8,bg:'#EDF1EF',bd:'#DEE5E1',
-    lab:lab,lc:'#42504A',lfs:9,mono:1,lwt:500,op:1,zi:3,d:.1});
-  B[14]=trk(0,128,'TRK-07 · Dana'); B[15]=trk(1,188,'TRK-12 · Marco');
-  B[16]=trk(2,248,'TRK-03 · Priya'); B[17]=trk(3,308,'TRK-21 · Sam');
-  B[18]=trk(4,368,'TRK-09 · Lee');
-  B[13]=bar(200,434,140,'Harbor pickup',1); B[13].d=.24;
+  B[1]=bar(256,144,140,'Northside loop',1); B[2]=bar(412,144,100,'Depot run');
+  B[3]=bar(286,200,160,'Cedar Ave install'); B[7]=bar(466,200,110,'Return leg');
+  B[4]=bar(256,256,90,'Pickup #88');        B[5]=bar(362,256,150,'Eastside delivery');
+  B[6]=bar(300,312,130,'Refuel · service');
+  const trk=(k,y,lab)=>({x:118,y:y,w:118,h:40,r:8,bg:'#EDF1EF',bd:'#DEE5E1',
+    lab:lab,lc:'#42504A',lfs:8.5,mono:1,lwt:500,op:1,zi:3,d:.1});
+  B[14]=trk(0,140,'TRK-07 · Dana'); B[15]=trk(1,196,'TRK-12 · Marco');
+  B[16]=trk(2,252,'TRK-03 · Priya'); B[17]=trk(3,308,'TRK-21 · Sam');
+  B[18]=trk(4,364,'TRK-09 · Lee');
+  B[13]=bar(252,442,140,'Harbor pickup',1); B[13].d=.24;
   return {name:'fleet', blocks:B, story:storyFleet};
 }
 function sceneCrm(){
   const B={};
-  B[0]={x:50,y:44,w:620,h:472,r:16,bg:MAT.card,bd:MAT.cardBd,op:1,zi:1};
-  [78,280,482].forEach((x,k)=>{ B[20+k]={x:x,y:118,w:184,h:372,r:12,bg:MAT.well,
+  B[0]={...SHELL_CARD};
+  [114,296,478].forEach((x,k)=>{ B[20+k]={x:x,y:142,w:170,h:352,r:12,bg:MAT.well,
     bd:'rgba(16,24,22,0)',op:1,zi:2,d:.08}; });
-  const card=(x,y,lab,amt,won)=>({x:x,y:y,w:164,h:54,r:9,
+  const card=(x,y,lab,amt,won)=>({x:x,y:y,w:150,h:54,r:9,
     bg:won?MAT.green:'#FFFFFF', bd:won?MAT.greenBd:'#E1E7E4',
-    lab:lab, amt:amt, lc:MAT.ink, lwt:600, lfs:10.5, afs:10, awt:500,
+    lab:lab, amt:amt, lc:MAT.ink, lwt:600, lfs:10, afs:9.5, awt:500,
     ac:won?MAT.greenTxt:MAT.mut, op:1, zi:3, d:.18});
-  B[1]=card(88,130,'Acme Paving','$12k');      B[2]=card(88,194,'Brightline HVAC','$8k');
-  B[3]=card(88,258,'Copper Key Homes','$21k'); B[4]=card(290,130,'Meridian Builders','$28k');
-  B[5]=card(290,194,'Nova Logistics','$16k');  B[6]=card(492,130,'Summit Roofing','$9k',1);
-  B[7]=card(492,194,'Delta Fabrication','$14k',1);
+  B[1]=card(124,154,'Acme Paving','$12k');      B[2]=card(124,218,'Brightline HVAC','$8k');
+  B[3]=card(124,282,'Copper Key Homes','$21k'); B[4]=card(306,154,'Meridian Builders','$28k');
+  B[5]=card(306,218,'Nova Logistics','$16k');   B[6]=card(488,154,'Summit Roofing','$9k',1);
+  B[7]=card(488,218,'Delta Fabrication','$14k',1);
   return {name:'crm', blocks:B, story:storyCrm};
 }
 const SCENES={bookings:sceneBookings, invoices:sceneInvoices, fleet:sceneFleet, crm:sceneCrm};
@@ -699,6 +746,30 @@ const CAPTIONS={
   fleet:   '// fleet — dispatch smarter',
   crm:     '// crm — win more deals'
 };
+/* the shell reads like a real product: breadcrumb + sidebar module per scene */
+const CRUMBS={
+  bookings:'Meridian Builders · Bookings',
+  invoices:'Meridian Builders · Invoices',
+  fleet:   'Meridian Builders · Dispatch',
+  crm:     'Meridian Builders · Pipeline'
+};
+const shellLogo=$('#shellLogo'), shellPill=$('#shellPill'), crumb=$('#crumb');
+shellLogo.src=navLogo.src;                    /* same Primary Logo.png asset */
+const modIcons=[$('#mi0'),$('#mi1'),$('#mi2'),$('#mi3')];
+/* sidebar: the active pill glides between modules as scenes change */
+function setModule(name,instant){
+  const k=['bookings','invoices','fleet','crm'].indexOf(name);
+  if(k<0) return;
+  modIcons.forEach((el,j)=>el.classList.toggle('on',j===k));
+  const p={y:k*48};
+  instant ? gsap.set(shellPill,p) : gsap.to(shellPill,{...p,duration:.55,ease:'power3.inOut'});
+  if(!instant){
+    gsap.fromTo(crumb,{opacity:0,x:-6},{opacity:1,x:0,duration:.4,ease:'power2.out',delay:.12});
+    gsap.fromTo(modIcons[k],{scale:.8},{scale:1,duration:.5,ease:'back.out(2.4)',
+      transformOrigin:'50% 50%',delay:.1});
+  }
+  crumb.textContent=CRUMBS[name];
+}
 /* scene progress dots (one per app in the cycle) */
 const dotEls=ORDER.map(()=>{ const d=document.createElement('i'); $('#sceneDots').appendChild(d); return d; });
 function setActiveDot(k,instant){
@@ -734,6 +805,9 @@ function morphTo(scene){
   specs.forEach((s,i)=>{ if(s.lab||s.amt){ withText.push(labL[i],labR[i]); } });
   tl.to(withText,{opacity:1,duration:.3,stagger:.012,ease:'power1.out'},T.morph+.02);
   tl.to(CHROME[scene.name],{opacity:1,duration:.35,ease:'power1.out'},T.morph-.02);
+  /* the branded shell is persistent — it fades in once and never swaps out
+     (it is deliberately NOT in chromeEls, so nothing ever fades it away)  */
+  tl.to('#shell',{opacity:1,duration:.45,ease:'power1.out'},T.morph-.35);
   return tl;
 }
 let cycleGuard=0;
@@ -749,6 +823,7 @@ function playScene(name, idx){
   tl.call(()=>{ caption.textContent=CAPTIONS[name]; caption.style.color='rgba(0,195,134,.7)'; },null,.3);
   tl.to(caption,{opacity:.8,duration:.5},.55);
   tl.call(()=>setActiveDot(idx),null,.2);
+  tl.call(()=>setModule(name),null,.15);      /* sidebar navigates with the scene */
   tl.add(scene.story(),T.morph+.28);
   /* reliability beat: a quiet “synced” toast closes every story */
   tl.fromTo(sync,{opacity:0,y:-5},{opacity:1,y:0,duration:.3,ease:'power2.out'},'>-0.05');
@@ -789,9 +864,9 @@ function drag(tl,bi,from,to,at,opts){
 /* ═══════════════════ 6 · MICRO-STORIES (one per app) ══════════════ */
 function storyBookings(){
   const tl=gsap.timeline();
-  cursorIn(tl,470,330,.1);
-  const end=drag(tl,4,{x:322,y:108,w:77,h:48},{x:405,y:276},.45);
-  pulse(tl,405+38,276+24,93,64,10,end+.05);
+  cursorIn(tl,490,350,.1);
+  const end=drag(tl,4,{x:349,y:144,w:70,h:48},{x:425,y:312},.45);
+  pulse(tl,425+35,312+24,86,64,10,end+.05);
   tl.to(blocks[12],{scale:1.06,duration:.16,yoyo:true,repeat:1,ease:'power1.inOut'},end+.3);
   tl.to({},{duration:.2});
   return tl;
@@ -801,34 +876,34 @@ function storyInvoices(){
   const n={v:0};
   tl.to(n,{v:4250,duration:.9,ease:'power1.out',
     onUpdate:()=>{ labR[6].textContent='$'+Math.round(n.v).toLocaleString('en-US'); }},.1);
-  cursorIn(tl,420,230,.35);
-  drag(tl,3,{x:134,y:248,w:452,h:40},{x:134,y:296},.7);
-  tl.to(blocks[4],{y:248,duration:.5,ease:'power2.inOut'},1.75);
+  cursorIn(tl,440,262,.35);
+  drag(tl,3,{x:126,y:280,w:522,h:40},{x:126,y:328},.7);
+  tl.to(blocks[4],{y:280,duration:.5,ease:'power2.inOut'},1.75);
   tl.fromTo(stamp,{opacity:0,scale:1.9,rotation:-22},
     {opacity:1,scale:1,rotation:-10,duration:.5,ease:'expo.out'},2.5);
-  pulse(tl,511,110,150,64,12,2.62);
+  pulse(tl,557,200,150,64,12,2.62);
   tl.to({},{duration:.3});
   return tl;
 }
 function storyFleet(){
   const tl=gsap.timeline();
-  cursorIn(tl,300,400,.1);
+  cursorIn(tl,352,408,.1);
   tl.to($('#ghostSlot'),{opacity:1,duration:.3},.85);
-  const end=drag(tl,13,{x:200,y:434,w:140,h:32},{x:360,y:372},.4);
+  const end=drag(tl,13,{x:252,y:442,w:140,h:32},{x:384,y:368},.4);
   tl.to($('#ghostSlot'),{opacity:0,duration:.25},end);
-  pulse(tl,430,388,160,52,10,end+.05);
+  pulse(tl,454,384,160,52,10,end+.05);
   tl.to({},{duration:.25});
   return tl;
 }
 function storyCrm(){
   const tl=gsap.timeline();
-  tl.to(blocks[3],{x:290,y:258,duration:.7,ease:'power2.inOut'},.35); // auto-drift Lead→Qualified
-  cursorIn(tl,420,260,.55);
-  const end=drag(tl,4,{x:290,y:130,w:164,h:54},{x:492,y:258},.95,{
+  tl.to(blocks[3],{x:306,y:282,duration:.7,ease:'power2.inOut'},.35); // auto-drift Lead→Qualified
+  cursorIn(tl,430,284,.55);
+  const end=drag(tl,4,{x:306,y:154,w:150,h:54},{x:488,y:282},.95,{
     onDrop:()=>{ labR[4].style.color=MAT.greenTxt; }
   });
   tl.to(blocks[4],{backgroundColor:MAT.green,borderColor:MAT.greenBd,duration:.35},end);
-  pulse(tl,492+82,258+27,180,70,10,end+.05);
+  pulse(tl,488+75,282+27,166,70,10,end+.05);
   tl.to({},{duration:.3});
   return tl;
 }
@@ -1166,6 +1241,8 @@ function reducedBoot(){
     gsap.set(blocks[0],{boxShadow:CARD_SHADOW});
     caption.textContent=CAPTIONS[name];
     setActiveDot(ORDER.indexOf(name),true);
+    setModule(name,true);
+    gsap.set('#shell',{opacity:1});
     gsap.set('#sceneDots',{opacity:.9}); gsap.set(sync,{opacity:0});
   }
   let k=0; apply(ORDER[0]);

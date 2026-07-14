@@ -15,11 +15,14 @@ that plays one continuous cinematic sequence:
    CodeBuddy link mark** in glowing brand green and pulse, while the icon
    that broke the wall **flies into the nav**, lands on the logo slot, and
    the `codebuddy` wordmark writes on with a sheen sweep.
-4. **The Canvas of Possibilities** — the same blocks then disperse and morph
-   FLIP-style into four real mini-apps: `bookings.app` → `invoices.app` →
-   `fleet.app` → `crm.app`, each with a tiny green “You” cursor dragging one
-   element, over a faint brand watermark.
-5. **Loop & Breathe** — the intro plays once; the app cycle loops forever.
+4. **The CodeBuddy Dashboard** — the same blocks then disperse and build one
+   **branded product shell**: a sidebar carrying the brand mark and module
+   icons, a topbar with the real logo, workspace breadcrumb, search and
+   avatar. The content morphs FLIP-style through its four modules —
+   **Bookings → Invoices → Dispatch → Pipeline** — while the sidebar’s active
+   pill glides and the breadcrumb re-types, so every switch reads as real
+   product navigation. A green “You” cursor drags one element per module.
+5. **Loop & Breathe** — the intro plays once; the module cycle loops forever.
 
 ## Preview
 
