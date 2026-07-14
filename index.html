@@ -12,7 +12,7 @@
      mini-app (true shared-element continuity — nothing is swapped).
 
      ACT STRUCTURE / TIMING MAP  (master GSAP timeline labels, seconds)
-       0.00  boot      nav links + eyebrow fade in, brick-words rise into wall
+       0.00  boot      nav links fade in, brick-words rise into the wall
        1.20  hum       low-frequency jitter, glitch ticks, red-orange breathing
        1.50  brand in  the CodeBuddy link icon DRAWS ITSELF at the stage edge
        2.25  laser     the icon rides the green level-line as its head, L→R
@@ -155,16 +155,6 @@ a{color:inherit}
 
 /* ── left: copy ── */
 .copy{position:relative; z-index:5; container-type:inline-size}
-.eyebrow{
-  display:inline-flex; align-items:center; gap:9px;
-  font-family:var(--f-mono); font-size:11.5px; font-weight:500;
-  letter-spacing:.24em; text-indent:.02em; color:#2BD9A0;
-  padding:9px 16px 9px 13px; border-radius:999px;
-  border:1px solid rgba(0,195,134,.22); background:rgba(0,195,134,.06);
-  margin-bottom:24px;
-}
-.eyebrow-dot{width:6px; height:6px; border-radius:50%; background:var(--green);
-  box-shadow:0 0 10px rgba(0,195,134,.8); animation:beat 2.6s ease-in-out infinite}
 h1{
   font-family:var(--f-disp); font-weight:700;
   font-size:clamp(2.6rem, 6.5vw, 5.5rem); /* client-mandated scale */
@@ -235,7 +225,6 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
 .avatars i:nth-child(1){background:linear-gradient(135deg,#1E6B52,#134A39)}
 .avatars i:nth-child(2){background:linear-gradient(135deg,#00A47A,#046B51); margin-left:-7px}
 .avatars i:nth-child(3){background:linear-gradient(135deg,#2E8C6E,#175843); margin-left:-7px}
-@keyframes beat{0%,100%{box-shadow:0 0 0 0 rgba(0,195,134,.5)}50%{box-shadow:0 0 0 5px rgba(0,195,134,0)}}
 
 /* ── right: stage ── */
 .stage-col{position:relative; height:100%; min-height:600px; display:flex; align-items:center; justify-content:center}
@@ -387,7 +376,6 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
   .nav-links a:not(.signin){display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .eyebrow-dot{animation:none}
   .btn{transition:none}
   .btn.shine::after{animation:none}
   .nav-links a:not(.signin)::after{transition:none}
@@ -421,8 +409,6 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
   <div class="hero-body">
     <!-- ══ LEFT: COPY ══ -->
     <div class="copy">
-      <p class="eyebrow" id="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>FOR BUSINESSES WITH BIG IDEAS</p>
-
       <h1 id="h1">
         <span class="ln"><span class="w"><span class="wi">Breaking</span></span> <span class="w"><span class="wi">Down</span></span></span>
         <span class="ln"><span class="w w-barriers"><span class="wi">Barriers<i class="strike" aria-hidden="true"></i></span></span> <span class="w"><span class="wi">to</span></span></span>
@@ -994,7 +980,6 @@ addEventListener('resize',()=>{ clearTimeout(fit._t); fit._t=setTimeout(fit,120)
 /* ═══════════════════ 10 · INITIAL STATES (JS-only → no-JS poster) ═ */
 gsap.set('#nav',{opacity:1,y:0});
 gsap.set('.nav-links',{opacity:0,y:-8});
-gsap.set('#eyebrow',{opacity:0,y:10});
 gsap.set('.wi',{yPercent:115});
 gsap.set(['#sub','#ctaRow','#trust'],{opacity:0,y:16});
 gsap.set('.brick',{opacity:0,y:26});
@@ -1077,7 +1062,6 @@ function buildMaster(){
   const M=gsap.timeline({paused:true});
   M.addLabel('boot',0)
    .to('.nav-links',{opacity:1,y:0,duration:.7,ease:'power2.out'},.15)
-   .to('#eyebrow',{opacity:1,y:0,duration:.6,ease:'power2.out'},.3)
    .to('.brick',{opacity:1,y:0,duration:.9,ease:'expo.out',stagger:{each:.09,from:'random'}},.35)
    .to(wallGlow,{opacity:1,duration:1.2,ease:'power1.inOut'},.6)
    .to(caption,{opacity:.85,duration:.5},1.05)
@@ -1158,7 +1142,7 @@ function buildMaster(){
 
 /* ═══════════════════ 12 · REDUCED MOTION — calm variant ═══════════ */
 function reducedBoot(){
-  gsap.set(['#nav','#eyebrow','#sub','#ctaRow','#trust'],{opacity:1,y:0});
+  gsap.set(['#nav','#sub','#ctaRow','#trust'],{opacity:1,y:0});
   gsap.set('.nav-links',{opacity:1,y:0}); finalizeLogo();
   gsap.set('.wi',{yPercent:0});
   gsap.set('.strike',{scaleX:1});
