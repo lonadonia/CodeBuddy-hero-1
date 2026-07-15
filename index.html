@@ -307,6 +307,7 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
 /* per-app chrome (real HTML microtype, fades per scene) */
 .chrome{position:absolute; inset:0; z-index:2; opacity:0}
 .chrome *{position:absolute}
+#crumb span, #crumb b{position:static}   /* breadcrumb’s inline parts flow normally */
 .dots span{position:absolute; width:8px; height:8px; border-radius:50%; top:0}
 .dots span:nth-child(1){left:0;  background:rgba(16,24,22,.14)}
 .dots span:nth-child(2){left:14px; background:rgba(16,24,22,.14)}
@@ -492,11 +493,17 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
             <span id="sideBg" style="left:41px;top:37px;width:53px;height:486px;
               background:linear-gradient(180deg,#F1F5F3,#E9EFEC);
               border-radius:15px 0 0 15px;border-right:1px solid rgba(16,24,22,.06)"></span>
-            <svg style="left:56px;top:52px" width="22" height="22" viewBox="0 0 119 119" aria-hidden="true">
+            <span style="left:95px;top:37px;width:584px;height:43px;background:#FAFCFB;border-radius:0 15px 0 0"></span>
+            <!-- brand mark on a black app-tile, as in the site header -->
+            <span style="left:48px;top:48px;width:38px;height:38px;border-radius:11px;
+              background:#0A0A0A;box-shadow:0 2px 7px rgba(3,8,6,.28)"></span>
+            <svg style="left:56px;top:56px" width="22" height="22" viewBox="0 0 119 119" aria-hidden="true">
               <path fill="#00C386" d="M83.3624 28.8859H64.2503L55.3688 17.6892H35.4135C15.908 17.6892 0 33.6121 0 53.1923C0 72.7724 15.908 88.6954 35.4698 88.6954H54.5256L63.4071 99.892H83.4186C102.98 99.892 118.888 83.9691 118.888 64.389C118.888 44.8088 102.98 28.8859 83.4186 28.8859H83.3624ZM35.4698 35.4126H54.0759L62.9574 46.6093H83.4186C93.1995 46.6093 101.182 54.5989 101.182 64.389C101.182 74.179 93.1995 82.1686 83.4186 82.1686H64.7562L55.8747 70.972H35.4698C25.6889 70.972 17.7068 62.9824 17.7068 53.1923C17.7068 43.4022 25.6889 35.4126 35.4698 35.4126Z"/>
             </svg>
+            <span style="left:53px;top:104px;width:28px;height:1px;background:rgba(16,24,22,.09)"></span>
             <span id="shellPill" style="left:48px;top:120px;width:38px;height:38px;border-radius:11px;
-              background:rgba(0,195,134,.14);border:1px solid rgba(0,195,134,.3)"></span>
+              background:rgba(0,195,134,.14);border:1px solid rgba(0,195,134,.3);
+              box-shadow:0 2px 10px rgba(0,195,134,.18)"></span>
             <svg class="m-ico" id="mi0" style="left:57px;top:129px" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="3" y="4.5" width="14" height="12.5" rx="2.5"/><path d="M3 8.5h14M7 2.5v3.5M13 2.5v3.5"/>
             </svg>
@@ -514,7 +521,7 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
             </svg>
             <span class="sb-av" style="left:55px;top:478px">JM</span>
             <span id="crumb" style="left:112px;top:52px;font-family:var(--f-sans);font-size:11px;font-weight:600;color:#42504A">Meridian Builders · Bookings</span>
-            <span style="left:492px;top:48px;width:112px;height:24px;border-radius:999px;background:rgba(16,24,22,.05);
+            <span style="left:492px;top:48px;width:112px;height:24px;border-radius:999px;background:#F1F5F3;border:1px solid #E7EDEA;
               font-family:var(--f-mono);font-size:8.5px;color:#7C948B;display:flex;align-items:center;justify-content:center;letter-spacing:.06em">SEARCH&nbsp;&nbsp;⌘K</span>
             <span class="sb-av top" style="left:632px;top:46px">AT</span>
             <span style="left:650px;top:43px;width:8px;height:8px;border-radius:50%;
@@ -823,13 +830,8 @@ const CAPTIONS={
   charts:  '// analytics — see the whole picture'
 };
 /* the shell reads like a real product: breadcrumb + sidebar module per scene */
-const CRUMBS={
-  bookings:'Meridian Builders · Bookings',
-  invoices:'Meridian Builders · Invoices',
-  fleet:   'Meridian Builders · Dispatch',
-  crm:     'Meridian Builders · Pipeline',
-  charts:  'Meridian Builders · Analytics'
-};
+const MODS={bookings:'Bookings', invoices:'Invoices', fleet:'Dispatch',
+            crm:'Pipeline', charts:'Analytics'};
 const shellPill=$('#shellPill'), crumb=$('#crumb');
 const modIcons=[$('#mi0'),$('#mi1'),$('#mi2'),$('#mi3'),$('#mi4')];
 /* sidebar: the active pill glides between modules as scenes change */
@@ -844,7 +846,9 @@ function setModule(name,instant){
     gsap.fromTo(modIcons[k],{scale:.8},{scale:1,duration:.5,ease:'back.out(2.4)',
       transformOrigin:'50% 50%',delay:.1});
   }
-  crumb.textContent=CRUMBS[name];
+  crumb.innerHTML='<span style="color:#7C948B">Meridian Builders</span>'+
+    '<span style="opacity:.4;padding:0 7px">·</span>'+
+    '<b style="color:#101816;font-weight:700">'+MODS[name]+'</b>';
 }
 /* scene progress dots (one per app in the cycle) */
 const dotEls=ORDER.map(()=>{ const d=document.createElement('i'); $('#sceneDots').appendChild(d); return d; });
