@@ -138,19 +138,30 @@ a{color:inherit}
 @media (prefers-reduced-motion:reduce){ .logo{transition:none} }
 .nav::after{content:""; position:absolute; left:48px; right:48px; bottom:-16px; height:1px;
   background:linear-gradient(90deg, transparent, rgba(247,250,249,.09) 18%, rgba(247,250,249,.09) 82%, transparent)}
-.nav-links{display:flex; align-items:center; gap:28px; font-size:13.5px; font-weight:500; color:var(--slate)}
+/* header matches the client's live site: link + chevron trio, then a dark
+   bordered pill (Studio) and a solid green pill (Solutions)              */
+.nav-links{display:flex; align-items:center; gap:36px; font-size:15px; font-weight:500; color:#EDF3F0}
 .nav-links a{text-decoration:none; transition:color .2s}
-.nav-links a:hover{color:var(--paper)}
-.nav-links a:not(.signin){position:relative}
-.nav-links a:not(.signin)::after{content:""; position:absolute; left:0; right:0; bottom:-6px; height:1.5px;
+.nav-links .nl{display:inline-flex; align-items:center; gap:7px; position:relative}
+.nav-links .nl svg{opacity:.85; transition:transform .22s}
+.nav-links .nl:hover svg{transform:translateY(1.5px)}
+.nav-links .nl::after{content:""; position:absolute; left:0; right:16px; bottom:-7px; height:1.5px;
   background:var(--green); border-radius:2px; transform:scaleX(0); transform-origin:0 50%;
   transition:transform .28s cubic-bezier(.6,0,.2,1)}
-.nav-links a:not(.signin):hover::after{transform:scaleX(1)}
-.nav-links .signin{
-  color:var(--paper); border:1px solid rgba(247,250,249,.16); border-radius:999px;
-  padding:7px 16px; transition:border-color .2s, background .2s;
+.nav-links .nl:hover::after{transform:scaleX(1)}
+.pill-dark{
+  background:#1B211E; color:#fff; border:1px solid rgba(247,250,249,.3);
+  border-radius:999px; padding:11px 22px; font-size:14.5px; margin-left:4px;
+  transition:border-color .22s, background .22s;
 }
-.nav-links .signin:hover{border-color:rgba(0,195,134,.6); background:rgba(0,195,134,.08)}
+.pill-dark:hover{border-color:rgba(0,195,134,.65); background:#1F2622}
+.pill-green{
+  background:var(--green); color:#fff; font-weight:600;
+  border-radius:999px; padding:12px 22px; font-size:14.5px;
+  transition:transform .22s, box-shadow .22s;
+  box-shadow:0 4px 18px -8px rgba(0,195,134,.5);
+}
+.pill-green:hover{transform:translateY(-1px); box-shadow:0 8px 26px -8px rgba(0,195,134,.65)}
 
 /* ─────────────────────────────  BODY GRID  ────────────────────────── */
 .hero-body{
@@ -163,10 +174,10 @@ a{color:inherit}
 .copy{position:relative; z-index:5; container-type:inline-size}
 h1{
   font-family:var(--f-disp); font-weight:700;
-  font-size:clamp(2.6rem, 6.5vw, 5.5rem); /* client-mandated scale */
-  line-height:1.03; letter-spacing:-.03em; margin-bottom:26px;
+  font-size:clamp(2.2rem, 4.6vw, 4.05rem); /* balanced display scale (~64px @1440) */
+  line-height:1.07; letter-spacing:-.025em; margin-bottom:22px;
 }
-@supports (width:1cqw){ h1{font-size:min(clamp(2.6rem, 6.5vw, 5.5rem), 14.4cqw)} }
+@supports (width:1cqw){ h1{font-size:min(clamp(2.2rem, 4.6vw, 4.05rem), 13cqw)} }
 h1 .ln{display:block}
 h1 .w{display:inline-block; overflow:hidden; vertical-align:top}
 h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-change:transform;
@@ -183,17 +194,17 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
   transform:scaleX(0); transform-origin:0 50%;
 }
 .sub{
-  font-size:18px; line-height:1.65; color:#9CB4AA;
-  max-width:46ch; margin-bottom:34px; font-weight:400;
+  font-size:16.5px; line-height:1.65; color:#9CB4AA;
+  max-width:50ch; margin-bottom:30px; font-weight:400;
 }
 .sub em{font-style:normal; color:#E9F4EF; font-weight:500}
-.cta-row{display:flex; align-items:center; gap:18px; margin-bottom:32px; flex-wrap:wrap}
+.cta-row{display:flex; align-items:center; gap:16px; margin-bottom:28px; flex-wrap:wrap}
 .btn{
   position:relative; overflow:hidden;
   display:inline-flex; align-items:center; gap:10px;
   background:linear-gradient(180deg,#00D492,#00B87E); color:var(--green-ink);
-  text-decoration:none; font-weight:600; font-size:15.5px; letter-spacing:.01em;
-  padding:17px 30px; border-radius:999px;
+  text-decoration:none; font-weight:600; font-size:15px; letter-spacing:.01em;
+  padding:15px 27px; border-radius:999px;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(3,20,14,.2),
              0 6px 24px -8px rgba(0,195,134,.55);
   transition:transform .22s cubic-bezier(.2,.9,.3,1.4), box-shadow .25s;
@@ -216,8 +227,8 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
 }
 .btn-ghost{
   display:inline-flex; align-items:center; gap:9px;
-  font-size:14.5px; font-weight:500; color:#B9CCC4; text-decoration:none;
-  padding:15px 24px; border-radius:999px;
+  font-size:14px; font-weight:500; color:#B9CCC4; text-decoration:none;
+  padding:13px 22px; border-radius:999px;
   border:1px solid rgba(247,250,249,.14); background:rgba(247,250,249,.03);
   transition:border-color .22s, color .22s, background .22s;
 }
@@ -386,12 +397,12 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
   .brick.m-hide{display:none}
   .btn{width:100%; justify-content:center}
   .cta-row{gap:16px}
-  .nav-links a:not(.signin){display:none}
+  .nav-links .nl, .nav-links .pill-dark{display:none}
 }
 @media (prefers-reduced-motion:reduce){
   .btn{transition:none}
   .btn.shine::after{animation:none}
-  .nav-links a:not(.signin)::after{transition:none}
+  .nav-links .nl::after{transition:none}
 }
 </style>
 </head>
@@ -412,10 +423,17 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
       </span>
     </a>
     <div class="nav-links">
-      <a href="#">Product</a>
-      <a href="#">Solutions</a>
-      <a href="#">Pricing</a>
-      <a class="signin" href="#">Sign in</a>
+      <a class="nl" href="#">Solutions
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="nl" href="#">Resources
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="nl" href="#">Language
+        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="pill-dark" href="#">CodeBuddy Studio</a>
+      <a class="pill-green" href="#">CodeBuddy Solutions</a>
     </div>
   </nav>
 
@@ -492,8 +510,7 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
               <path d="M3 17h14"/><rect x="3.5" y="10.5" width="3.4" height="6.5"/><rect x="8.3" y="6.5" width="3.4" height="10.5"/><rect x="13.1" y="3" width="3.4" height="14"/>
             </svg>
             <span class="sb-av" style="left:55px;top:478px">JM</span>
-            <img id="shellLogo" alt="" style="left:112px;top:50px;height:15px;width:auto" decoding="async">
-            <span id="crumb" style="left:206px;top:53px;font-family:var(--f-sans);font-size:10.5px;font-weight:500;color:#5C6E67">Meridian Builders · Bookings</span>
+            <span id="crumb" style="left:112px;top:52px;font-family:var(--f-sans);font-size:11px;font-weight:600;color:#42504A">Meridian Builders · Bookings</span>
             <span style="left:492px;top:48px;width:112px;height:24px;border-radius:999px;background:rgba(16,24,22,.05);
               font-family:var(--f-mono);font-size:8.5px;color:#7C948B;display:flex;align-items:center;justify-content:center;letter-spacing:.06em">SEARCH&nbsp;&nbsp;⌘K</span>
             <span class="sb-av top" style="left:632px;top:46px">AT</span>
@@ -811,8 +828,7 @@ const CRUMBS={
   crm:     'Meridian Builders · Pipeline',
   charts:  'Meridian Builders · Analytics'
 };
-const shellLogo=$('#shellLogo'), shellPill=$('#shellPill'), crumb=$('#crumb');
-shellLogo.src=navLogo.src;                    /* same Primary Logo.png asset */
+const shellPill=$('#shellPill'), crumb=$('#crumb');
 const modIcons=[$('#mi0'),$('#mi1'),$('#mi2'),$('#mi3'),$('#mi4')];
 /* sidebar: the active pill glides between modules as scenes change */
 function setModule(name,instant){
