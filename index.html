@@ -488,6 +488,9 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
             <svg class="m-ico" id="mi3" style="left:57px;top:273px" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="2.5" y="3.5" width="4.2" height="13"/><rect x="7.9" y="3.5" width="4.2" height="9"/><rect x="13.3" y="3.5" width="4.2" height="6"/>
             </svg>
+            <svg class="m-ico" id="mi4" style="left:57px;top:321px" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 17h14"/><rect x="3.5" y="10.5" width="3.4" height="6.5"/><rect x="8.3" y="6.5" width="3.4" height="10.5"/><rect x="13.1" y="3" width="3.4" height="14"/>
+            </svg>
             <span class="sb-av" style="left:55px;top:478px">JM</span>
             <img id="shellLogo" alt="" style="left:112px;top:50px;height:15px;width:auto" decoding="async">
             <span id="crumb" style="left:206px;top:53px;font-family:var(--f-sans);font-size:10.5px;font-weight:500;color:#5C6E67">Meridian Builders · Bookings</span>
@@ -542,6 +545,25 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
             <span class="microtag" style="left:122px;top:124px;letter-spacing:.14em">LEAD</span>
             <span class="microtag" style="left:304px;top:124px;letter-spacing:.14em">QUALIFIED</span>
             <span class="microtag" style="left:486px;top:124px;letter-spacing:.14em;color:#0A7B5C">WON</span>
+          </div>
+
+          <div class="chrome" id="chrome-charts">
+            <span class="pg-title" style="left:110px;top:90px">Analytics</span>
+            <span class="chip" style="left:188px;top:88px">Revenue · +18%</span>
+            <span style="left:118px;top:220px;width:532px;height:225px;
+              background-image:repeating-linear-gradient(to top, rgba(16,24,22,.05) 0 1px, transparent 1px 56px);"></span>
+            <span style="left:118px;top:276px;width:532px;height:0;border-top:1.5px dashed rgba(0,195,134,.45)"></span>
+            <span class="microtag" style="left:598px;top:264px;color:#0A7B5C;letter-spacing:.1em">TARGET</span>
+            <span class="microtag" style="left:134px;top:452px;width:36px;text-align:center">JAN</span>
+            <span class="microtag" style="left:200px;top:452px;width:36px;text-align:center">FEB</span>
+            <span class="microtag" style="left:266px;top:452px;width:36px;text-align:center">MAR</span>
+            <span class="microtag" style="left:332px;top:452px;width:36px;text-align:center">APR</span>
+            <span class="microtag" style="left:398px;top:452px;width:36px;text-align:center">MAY</span>
+            <span class="microtag" style="left:464px;top:452px;width:36px;text-align:center">JUN</span>
+            <span class="microtag" style="left:530px;top:452px;width:36px;text-align:center">JUL</span>
+            <span class="microtag" style="left:596px;top:452px;width:36px;text-align:center">AUG</span>
+            <span id="barTip" style="left:582px;top:234px;opacity:0;font-family:var(--f-mono);font-size:9px;
+              font-weight:600;letter-spacing:.04em;color:#7DF0C8;background:#101816;border-radius:6px;padding:4px 8px">AUG · $24k</span>
           </div>
 
           <div id="blocks"></div>
@@ -625,7 +647,7 @@ const logoA=$('.logo'), navLogo=$('#navLogo'), logoSheen=$('#logoSheen'),
 
 const CHROME = {
   bookings:$('#chrome-bookings'), invoices:$('#chrome-invoices'),
-  fleet:$('#chrome-fleet'), crm:$('#chrome-crm')
+  fleet:$('#chrome-fleet'), crm:$('#chrome-crm'), charts:$('#chrome-charts')
 };
 const chromeEls = Object.values(CHROME);
 
@@ -739,29 +761,62 @@ function sceneCrm(){
   B[7]=card(488,218,'Delta Fabrication','$14k',1);
   return {name:'crm', blocks:B, story:storyCrm};
 }
-const SCENES={bookings:sceneBookings, invoices:sceneInvoices, fleet:sceneFleet, crm:sceneCrm};
-const ORDER = NARROW ? ['bookings','invoices'] : ['bookings','invoices','fleet','crm'];
+function sceneCharts(){
+  const B={};
+  B[0]={...SHELL_CARD};
+  /* KPI stat tiles — same block system, dashboard vocabulary */
+  const kpi=(x,lab,amt)=>({x:x,y:132,w:160,h:62,r:10,bg:'#FFFFFF',bd:MAT.rowBd,
+    lab:lab,amt:amt,lc:MAT.mut,lwt:500,lfs:10,afs:14,awt:700,ac:MAT.ink,op:1,zi:3,d:.14});
+  B[10]=kpi(118,'Revenue','$0'); B[11]=kpi(294,'Jobs','342'); B[12]=kpi(470,'On-time','96%');
+  /* revenue bars rise from the y=444 baseline (blocks as chart marks) */
+  const H=[60,88,72,116,96,140,118,168];
+  H.forEach((h,i)=>{ const green=i===7;
+    B[i+1]={x:134+i*66, y:444-h, w:36, h:h, r:6,
+      bg:green?MAT.green:MAT.neutral, bd:green?MAT.greenBd:MAT.neutralBd,
+      op:1, zi:3, d:.16+i*.02};
+  });
+  return {name:'charts', blocks:B, story:storyCharts};
+}
+function storyCharts(){
+  const tl=gsap.timeline();
+  const n={v:0};
+  tl.to(n,{v:128,duration:.9,ease:'power1.out',
+    onUpdate:()=>{ labR[10].textContent='$'+Math.round(n.v)+'k'; }},.15);
+  cursorIn(tl,470,330,.45);
+  tl.to(you,{x:616,y:298,duration:.6,ease:'power2.inOut'},1.0);
+  tl.to(blocks[8],{y:268,height:176,duration:.32,ease:'power2.out'},1.55);   // AUG bar answers the hover
+  pulse(tl,614,272,64,60,10,1.6);
+  tl.fromTo('#barTip',{opacity:0,y:6},{opacity:1,y:0,duration:.35,ease:'power2.out'},1.75);
+  tl.to('#barTip',{opacity:0,duration:.3},3.05);
+  tl.to(blocks[8],{y:276,height:168,duration:.35,ease:'power2.inOut'},3.05);
+  tl.to({},{duration:.2});
+  return tl;
+}
+const SCENES={bookings:sceneBookings, invoices:sceneInvoices, fleet:sceneFleet, crm:sceneCrm, charts:sceneCharts};
+const ORDER = NARROW ? ['bookings','invoices'] : ['bookings','invoices','fleet','crm','charts'];
 
 /* per-scene value captions — the animation narrates the services */
 const CAPTIONS={
   bookings:'// bookings — fill your calendar',
   invoices:'// invoices — get paid faster',
   fleet:   '// fleet — dispatch smarter',
-  crm:     '// crm — win more deals'
+  crm:     '// crm — win more deals',
+  charts:  '// analytics — see the whole picture'
 };
 /* the shell reads like a real product: breadcrumb + sidebar module per scene */
 const CRUMBS={
   bookings:'Meridian Builders · Bookings',
   invoices:'Meridian Builders · Invoices',
   fleet:   'Meridian Builders · Dispatch',
-  crm:     'Meridian Builders · Pipeline'
+  crm:     'Meridian Builders · Pipeline',
+  charts:  'Meridian Builders · Analytics'
 };
 const shellLogo=$('#shellLogo'), shellPill=$('#shellPill'), crumb=$('#crumb');
 shellLogo.src=navLogo.src;                    /* same Primary Logo.png asset */
-const modIcons=[$('#mi0'),$('#mi1'),$('#mi2'),$('#mi3')];
+const modIcons=[$('#mi0'),$('#mi1'),$('#mi2'),$('#mi3'),$('#mi4')];
 /* sidebar: the active pill glides between modules as scenes change */
 function setModule(name,instant){
-  const k=['bookings','invoices','fleet','crm'].indexOf(name);
+  const k=['bookings','invoices','fleet','crm','charts'].indexOf(name);
   if(k<0) return;
   modIcons.forEach((el,j)=>el.classList.toggle('on',j===k));
   const p={y:k*48};
@@ -1239,6 +1294,7 @@ function reducedBoot(){
       setBlockText(i,s); gsap.set([labL[i],labR[i]],{opacity:1});
     }
     labR[6].textContent = name==='invoices' ? '$4,250' : labR[6].textContent;
+    if(name==='charts') labR[10].textContent='$128k';
     chromeEls.forEach(c=>gsap.set(c,{opacity:0}));
     gsap.set(CHROME[name],{opacity:1});
     gsap.set(stamp,{opacity:name==='invoices'?1:0,scale:1,rotation:-10});
