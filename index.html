@@ -468,12 +468,13 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
                real Primary Logo.png, workspace breadcrumb, search and avatar.
                Scene switches read like real product navigation.            -->
           <div class="chrome" id="shell">
-            <span id="sideBg" style="left:41px;top:37px;width:53px;height:486px;background:#EFF3F1;
+            <span id="sideBg" style="left:41px;top:37px;width:53px;height:486px;
+              background:linear-gradient(180deg,#F1F5F3,#E9EFEC);
               border-radius:15px 0 0 15px;border-right:1px solid rgba(16,24,22,.06)"></span>
             <svg style="left:56px;top:52px" width="22" height="22" viewBox="0 0 119 119" aria-hidden="true">
               <path fill="#00C386" d="M83.3624 28.8859H64.2503L55.3688 17.6892H35.4135C15.908 17.6892 0 33.6121 0 53.1923C0 72.7724 15.908 88.6954 35.4698 88.6954H54.5256L63.4071 99.892H83.4186C102.98 99.892 118.888 83.9691 118.888 64.389C118.888 44.8088 102.98 28.8859 83.4186 28.8859H83.3624ZM35.4698 35.4126H54.0759L62.9574 46.6093H83.4186C93.1995 46.6093 101.182 54.5989 101.182 64.389C101.182 74.179 93.1995 82.1686 83.4186 82.1686H64.7562L55.8747 70.972H35.4698C25.6889 70.972 17.7068 62.9824 17.7068 53.1923C17.7068 43.4022 25.6889 35.4126 35.4698 35.4126Z"/>
             </svg>
-            <span id="shellPill" style="left:48px;top:111px;width:38px;height:38px;border-radius:11px;
+            <span id="shellPill" style="left:48px;top:120px;width:38px;height:38px;border-radius:11px;
               background:rgba(0,195,134,.14);border:1px solid rgba(0,195,134,.3)"></span>
             <svg class="m-ico" id="mi0" style="left:57px;top:129px" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="3" y="4.5" width="14" height="12.5" rx="2.5"/><path d="M3 8.5h14M7 2.5v3.5M13 2.5v3.5"/>
@@ -493,6 +494,8 @@ h1 .wi{display:inline-block; padding-bottom:.12em; margin-bottom:-.12em; will-ch
             <span style="left:492px;top:48px;width:112px;height:24px;border-radius:999px;background:rgba(16,24,22,.05);
               font-family:var(--f-mono);font-size:8.5px;color:#7C948B;display:flex;align-items:center;justify-content:center;letter-spacing:.06em">SEARCH&nbsp;&nbsp;⌘K</span>
             <span class="sb-av top" style="left:632px;top:46px">AT</span>
+            <span style="left:650px;top:43px;width:8px;height:8px;border-radius:50%;
+              background:#00C386;border:2px solid #F7FAF9"></span>
             <span class="hline" style="left:95px;top:80px;width:584px"></span>
           </div>
 
@@ -685,7 +688,7 @@ function sceneBookings(){
   B[9]=ap(1,3,2,'Repair · Elm');  B[10]=ap(5,0,1,'Walk-thru');
   B[11]=ap(6,3,1,'Follow-up');    B[13]=ap(0,2,1,'Quote #118');
   B[14]=ap(4,4,1,'Site survey');  B[15]=ap(3,4,1,'Install 5C');
-  B[16]=ap(1,5,1,'Crew B');       B[17]=ap(6,5,1,'Delivery');
+  B[16]=ap(1,5,1,'Crew B');       B[17]=ap(5,5,1,'Delivery');  /* c5: keeps the FAB corner clear */
   B[12]={x:552,y:466,w:112,h:32,r:999,bg:MAT.solid,bd:MAT.solid,lab:'+ New booking',
          lc:MAT.solidTxt,lfs:10,center:1,op:1,zi:4,d:.22};
   return {name:'bookings', blocks:B, story:storyBookings};
@@ -806,8 +809,9 @@ function morphTo(scene){
   tl.to(withText,{opacity:1,duration:.3,stagger:.012,ease:'power1.out'},T.morph+.02);
   tl.to(CHROME[scene.name],{opacity:1,duration:.35,ease:'power1.out'},T.morph-.02);
   /* the branded shell is persistent — it fades in once and never swaps out
-     (it is deliberately NOT in chromeEls, so nothing ever fades it away)  */
-  tl.to('#shell',{opacity:1,duration:.45,ease:'power1.out'},T.morph-.35);
+     (it is deliberately NOT in chromeEls, so nothing ever fades it away);
+     timed to land only after the card has fully grown on first assembly   */
+  tl.to('#shell',{opacity:1,duration:.4,ease:'power1.out'},T.morph-.08);
   return tl;
 }
 let cycleGuard=0;
