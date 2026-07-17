@@ -42,6 +42,16 @@ Open `index.html` in any modern browser — no build step, no server needed.
   the untouched image).
 - Every app scene is narrated: a value caption (`// invoices — get paid
   faster`), scene progress dots, and a quiet `✓ synced` toast reinforce
-  what customers can build and how reliably it ships.
+  what customers can build and how reliably it ships. A proof ticker
+  opposite the caption rotates real CodeBuddy numbers — **90% cheaper**,
+  **4× faster**, **live in 1–8 weeks**, **you own 100% of the code** —
+  and the Buddy bar plays the actual method on every request:
+  type → `✓ SPEC’D` → `✦ BUILDING` (spec-driven, not vibe coding).
+- Micro-interactions inside the product mock: the invoice due-tag flips
+  to `PAID`, overdue/unassigned counters tick to zero, all three
+  analytics KPIs count up, a `+$28k` win floats into the pipeline total,
+  and the topbar presence dot pings with each sync. The cursor drags on
+  a subtle arc with a click ripple; a People/HR module sits in the
+  sidebar as the next thing this business could ask for.
 - Full act/timing map and tweakables are documented in the README comment
   block at the top of `index.html`.
